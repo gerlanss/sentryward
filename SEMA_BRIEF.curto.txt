@@ -1,0 +1,19 @@
+PROJETO: SentryWard
+BASE: C:\GitHub\SentryWard
+MODULOS: 1
+MODO_CODIGO: contratos_apenas
+AVISO_CODIGO: somente contratos enviados; implementacao nao verificada neste modo
+FONTES_CONCLUSAO: contrato, codigo
+ENTRADA_IA: SEMA_BOOT.md -> llms.txt -> AGENT_CONTEXT_PACK.json -> SEMA_BRIEF.curto.txt -> SEMA_INDEX.json -> AGENTS.md -> README.md
+POLITICA_PLATAFORMA: O Sema governa contrato, escopo, drift, evidência e qualidade do projeto. Ele não pede, não autoriza e não contorna políticas da plataforma, termos de uso, permissões, segurança ou leis. Se um cliente, modelo ou classificador bloquear a mensagem, trate como bloqueio externo ou falso positivo possível: explique de forma neutra, preserve a intenção legítima de governança e não tente burlar filtros.
+TIMEOUT_SEMA: Timeout definido pelo agente não é falha do Sema. Se `sema resumo`, `inspecionar`, `drift` ou `sync-ai-entrypoints` estourar por timeout local, aumente o timeout e tente de novo com escopo menor quando possível. Escale 120s -> 300s -> 600s antes de declarar bloqueio.
+CODIGO_GOVERNADO: SEMA-GOVERNED -> docs-impacto e drift antes de alterar comportamento
+ORCAMENTO_SEMANTICO: codigo governado acima de 1000 linhas exige refatoracao e acima de 2000 bloqueia; .sema acima de 300 diagnostica e acima de 500 bloqueia criacao, edicao, drift, geracao e snapshot; varios .sema podem governar o mesmo arquivo via vinculos
+PAYLOAD_MCP: conteudo inline acima de 262144 caracteres deve virar arquivos logicos, anexo, caminho de servidor autorizado ou manifesto; nao aumente timeout para empurrar o mesmo payload
+DESIGN_VISUAL: Quando a tarefa envolve site, sistema, app, interface, dashboard, painel, formulário, landing, jogo, terminal, CLI/TUI ou qualquer artefato voltado ao usuário, o Sema governa também acabamento, modernidade e adequação ao domínio. Beleza funcional, identidade, criatividade útil, tecnologia adequada, estados, responsividade e evidência não são extras opcionais. Fraca=Use um padrão moderno seguro e contextual: hierarquia clara, espaçamento consistente, paleta com contraste, componentes coerentes com o domínio, estados básicos, responsivo mobile/desktop e nada de formulário cinza genérico. Em terminal, entregue saída organizada com status e erro claros. Se não conseguir validar o resultado, pare e peça revisão. Media=Defina intenção de experiência antes de codar: público, domínio, workflow real, densidade, tokens, componentes, tecnologia/biblioteca/efeitos adequados, estados, responsividade e anti-2010. O domínio manda na solução: agro, finanças, saúde, game e e-commerce não podem compartilhar a mesma casca. Rode ou peça screenshot/browser check quando houver UI e smoke check quando for terminal. Forte=Crie direção específica e ambiciosa do domínio, use bibliotecas, APIs, assets, microinterações e efeitos atuais quando fizerem sentido, refine o fluxo principal até parecer produto real e faça verificação visual/terminal com evidência. Inovação precisa servir ao uso, não virar enfeite.
+TOP_MODULOS: app.pedidos
+TOP_RISCOS: altera_persistencia, codigo_nao_verificado_neste_modo, criar_pedido:alto, efeito_critico, efeito_privilegiado
+TOP_LACUNAS: audit_ausente, auth_ausente, authz_frouxa, dados_nao_classificados, execucao_critica_sem_bloco, execucao_implicita
+TOP_ARQUIVOS: nenhum
+TOP_ARQUIVOS_FONTE: nenhum
+GERADO_EM: 2026-06-28T21:52:40.632Z

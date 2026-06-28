@@ -1,0 +1,9 @@
+# SentryWard ignore file
+node_modules/
+.git/
+dist/
+build/
+coverage/
+.next/
+.venv/
+vendor/

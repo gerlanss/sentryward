@@ -1,0 +1,283 @@
+{
+  "tagline": "Revela lo que el código generado intenta ocultar.",
+  "cli": {
+    "description": "Centinela de seguridad local-first para código generado por IA.",
+    "options": {
+      "lang": "idioma de salida: en, pt-BR o es",
+      "governed": "activa comprobaciones opcionales con Sema como complemento",
+      "sema": "activa el modo complementario opcional con Sema",
+      "contractCheck": "también informa brechas opcionales de gobernanza Sema",
+      "requireContract": "modo estricto: bloquea correcciones sin contrato .sema aplicable",
+      "apply": "aplica correcciones seguras",
+      "yes": "confirma acciones no interactivas",
+      "patch": "crea archivo de parche",
+      "html": "genera informe HTML",
+      "json": "genera informe JSON",
+      "url": "URL local de desarrollo"
+    }
+  },
+  "commands": {
+    "watch": "observa el proyecto",
+    "init": "inicializa la configuración de SentryWard",
+    "scan": "escanea un proyecto local",
+    "status": "muestra la salud de seguridad actual",
+    "findings": "lista hallazgos guardados",
+    "explain": "explica un hallazgo",
+    "fix": "muestra un plan de corrección",
+    "report": "genera un informe",
+    "surface": "escanea exposición de browser/frontend",
+    "hooks": "gestiona hooks Git locales",
+    "hooksInstall": "instala hook de pre-commit",
+    "ci": "gestiona configuración de CI",
+    "ciInit": "crea workflow de GitHub Actions",
+    "sema": "comandos opcionales del complemento Sema",
+    "semaStatus": "muestra estado del complemento Sema",
+    "semaInit": "crea contrato Sema inicial de seguridad",
+    "semaSync": "sincroniza hallazgos como eventos Sema locales",
+    "path": "ruta a escanear",
+    "findingId": "id del hallazgo"
+  },
+  "common": {
+    "enabled": "activado",
+    "disabled": "desactivado",
+    "yes": "sí",
+    "no": "no"
+  },
+  "summary": {
+    "project": "Proyecto",
+    "stack": "Stack",
+    "score": "Puntuación de seguridad",
+    "unknown": "desconocido"
+  },
+  "severity": {
+    "critical": "Crítico",
+    "high": "Alto",
+    "medium": "Medio",
+    "low": "Bajo",
+    "info": "Info"
+  },
+  "finding": {
+    "file": "Archivo",
+    "evidence": "Evidencia",
+    "recommendation": "Recomendación"
+  },
+  "watch": {
+    "started": "La ward está observando tu proyecto.",
+    "nothing": "Nada peligroso está visible ahora.",
+    "noNewIssues": "No se encontraron nuevos hallazgos altos o críticos."
+  },
+  "init": {
+    "created": "Configuración de SentryWard creada."
+  },
+  "status": {
+    "noScan": "No hay scan guardado. Ejecuta ward scan . primero."
+  },
+  "explain": {
+    "notFound": "Hallazgo no encontrado: {id}",
+    "what": "Qué ocurrió",
+    "autoFix": "Auto-corrección segura",
+    "verify": "Verificar después de corregir"
+  },
+  "fix": {
+    "title": "Plan de Corrección SentryWard",
+    "finding": "Hallazgo",
+    "semaGate": "Gate Sema",
+    "plan": "Plan",
+    "files": "Archivos a cambiar",
+    "manual": "Pasos manuales",
+    "noAutoApply": "Este hallazgo no es seguro para auto-aplicar. Revisa el plan o crea un parche.",
+    "needYes": "Usa --yes para confirmar aplicación no interactiva.",
+    "patchPlaceholder": "Parche placeholder. Esta corrección requiere edición específica del proyecto.",
+    "patchCreated": "Archivo de parche creado: {file}",
+    "optionDiff": "Mostrar diff",
+    "optionApply": "Aplicar",
+    "optionPatch": "Crear solo parche",
+    "optionCancel": "Cancelar",
+    "manual.rotate": "Rota manualmente cualquier secreto expuesto.",
+    "manual.verify": "Verifica el comportamiento después del parche.",
+    "plan.useAuthMiddleware": "Usa el middleware de autenticación existente.",
+    "plan.addAdminRole": "Agrega validación de rol admin.",
+    "plan.preserveResponse": "Preserva el formato de respuesta de la ruta.",
+    "plan.addAudit": "Agrega auditoría para la acción sensible.",
+    "plan.rerunScan": "Ejecuta de nuevo el scan de SentryWard.",
+    "plan.moveSecretBackend": "Mueve el uso de secretos privilegiados a variables de entorno del backend.",
+    "plan.addEnvExample": "Agrega un placeholder seguro a .env.example.",
+    "plan.rotateSecret": "Avisa que la clave expuesta debe rotarse.",
+    "plan.parameterizeQuery": "Reemplaza SQL armado con strings por queries parametrizadas.",
+    "plan.addOwnership": "Agrega comprobaciones de tenant o propietario.",
+    "plan.reviewCode": "Revisa la ruta de código vulnerable.",
+    "plan.applyMinimalPatch": "Aplica el parche seguro más pequeño."
+  },
+  "report": {
+    "impact": "Impacto",
+    "generated": "Generado",
+    "wrote": "Informe generado: {file}"
+  },
+  "hooks": {
+    "noGit": "Este no es un repositorio Git.",
+    "installed": "Hook de pre-commit de SentryWard instalado."
+  },
+  "ci": {
+    "created": "Workflow creado: {file}"
+  },
+  "surface": {
+    "remoteBlocked": "Solo se permiten URLs locales de desarrollo.",
+    "localChecked": "URL local verificada: {url}"
+  },
+  "sema": {
+    "governance": "Gobernanza Sema",
+    "contractMode": "Modo de contrato",
+    "driftCheck": "Comprobación de drift",
+    "impactMap": "Mapa de impacto",
+    "checking": "Verificando contexto complementario de Sema...",
+    "projectContext": "Contexto del proyecto cargado",
+    "contract": "Contrato aplicable",
+    "noContract": "ningún contrato aplicable",
+    "drift": "Análisis de drift completado",
+    "impact": "Mapa de impacto generado",
+    "gate": "Resultado del gate",
+    "reason": "Motivo",
+    "constraints": "Restricciones Sema:",
+    "notRequested": "no solicitado",
+    "evidence": {
+      "noContract": "Archivo sensible sin contrato .sema aplicable: {file}"
+    },
+    "reason.noContractRequired": "No se encontró contrato .sema aplicable y se pidió modo estricto.",
+    "reason.noContractOptional": "No se encontró contrato .sema aplicable. Sema es un complemento opcional recomendado.",
+    "reason.blocked": "El gate Sema bloqueó esta corrección.",
+    "constraint": {
+      "preserveBehavior": "Preservar comportamiento existente salvo que el contrato permita cambios.",
+      "updateContract": "Actualizar o validar el contrato de seguridad después del parche cuando se use Sema.",
+      "useExistingAuth": "Usar el middleware de autenticación existente.",
+      "preserveRoles": "Preservar el modelo de roles existente.",
+      "preservePublicRoutes": "No cambiar comportamiento de rutas públicas.",
+      "addAudit": "Agregar auditoría para acciones administrativas sensibles.",
+      "noSecretReturn": "No devolver ni registrar secretos.",
+      "rotateManually": "Rotar secretos expuestos manualmente.",
+      "preserveOwnership": "Preservar límites de tenant y propietario.",
+      "noRawSql": "No introducir SQL bruto inseguro.",
+      "createContractFirst": "Crear o actualizar el contrato .sema aplicable antes de cambiar código.",
+      "recommendedComplement": "Sema puede agregarse como complemento opcional de gobernanza."
+    },
+    "status": {
+      "available": "Proyecto Sema detectado",
+      "contracts": "Contratos Sema"
+    },
+    "init": {
+      "exists": "Contrato inicial ya existe: {file}",
+      "created": "Contrato Sema inicial de seguridad creado: {file}"
+    },
+    "sync": {
+      "done": "Eventos Sema escritos: {count}"
+    }
+  },
+  "evidence": {
+    "cookieRouteNoCsrf": "Ruta con cookie o sesión sin protección CSRF visible.",
+    "sensitiveRouteNoRateLimit": "Ruta sensible sin rate limit visible.",
+    "webhookNoSignature": "Endpoint de webhook sin verificación de firma visible."
+  },
+  "findings": {
+    "default": {
+      "title": "Hallazgo de seguridad detectado ({id})",
+      "problem": "Una regla local determinista encontró un patrón riesgoso.",
+      "impact": "El problema puede exponer datos, credenciales o comportamiento protegido.",
+      "recommendation": "Revisa el archivo afectado y aplica la corrección segura más pequeña."
+    },
+    "SW-SECRETS-001": {
+      "title": "Clave secreta Stripe expuesta",
+      "problem": "Una clave secreta Stripe aparece en código o configuración local.",
+      "impact": "Quien obtenga la clave puede ejecutar acciones privilegiadas en la API de Stripe.",
+      "recommendation": "Mueve la clave a variables de entorno solo del backend y rótala."
+    },
+    "SW-SECRETS-002": {
+      "title": "Clave de API OpenAI expuesta",
+      "problem": "Una clave de API OpenAI aparece en código o configuración local.",
+      "impact": "La clave puede abusarse para gastar créditos o acceder a recursos del proyecto.",
+      "recommendation": "Elimina la clave del código, usa variables de entorno y rótala."
+    },
+    "SW-SECRETS-003": {
+      "title": "Clave service role de Supabase expuesta",
+      "problem": "Una credencial service role de Supabase aparece en el código.",
+      "impact": "Las claves service role pueden saltarse Row Level Security.",
+      "recommendation": "Mantén la service role solo en servidor y rota la clave expuesta."
+    },
+    "SW-BROWSER-001": {
+      "title": "Secreto expuesto en código frontend",
+      "problem": "Un secreto privado aparece en código que puede llegar al browser.",
+      "impact": "Atacantes pueden inspeccionar bundles del browser y extraer el valor.",
+      "recommendation": "Mueve lógica privilegiada al backend y expón solo claves públicas seguras para cliente."
+    },
+    "SW-BROWSER-002": {
+      "title": "Ruta sensible referenciada en frontend",
+      "problem": "Código frontend referencia una ruta sensible.",
+      "impact": "La visibilidad no es vulnerabilidad automática, pero aumenta riesgo si el backend es débil.",
+      "recommendation": "Verifica autenticación, roles, ownership y rate limit en el backend."
+    },
+    "SW-AUTH-014": {
+      "title": "Ruta admin sin autenticación",
+      "problem": "Una ruta sensible parece no tener autenticación o validación de rol en backend.",
+      "impact": "Cualquier persona podría llamar un endpoint administrativo.",
+      "recommendation": "Usa middleware de auth existente, valida rol admin y preserva comportamiento de la ruta."
+    },
+    "SW-DB-001": {
+      "title": "Riesgo de interpolación SQL",
+      "problem": "SQL parece construirse con interpolación de template.",
+      "impact": "Entrada no confiable puede alterar el comportamiento de la query.",
+      "recommendation": "Usa queries parametrizadas o APIs seguras del ORM."
+    },
+    "SW-UPLOAD-001": {
+      "title": "Upload sin límite de tamaño visible",
+      "problem": "El manejo de upload no muestra límite de tamaño.",
+      "impact": "Uploads grandes pueden agotar disco, memoria o procesamiento.",
+      "recommendation": "Agrega límites explícitos y rechaza archivos grandes temprano."
+    },
+    "SW-CORS-001": {
+      "title": "Origen CORS comodín",
+      "problem": "CORS permite cualquier origen.",
+      "impact": "Browsers pueden permitir llamadas de sitios no previstos a la API.",
+      "recommendation": "Restringe orígenes a dominios confiables, especialmente en producción."
+    },
+    "SW-SESSION-001": {
+      "title": "JWT guardado en storage del browser",
+      "problem": "Un token se guarda en localStorage o sessionStorage.",
+      "impact": "XSS puede robar el token.",
+      "recommendation": "Usa cookies HttpOnly seguras u otro diseño de sesión más seguro."
+    },
+    "SW-WEBHOOK-001": {
+      "title": "Webhook sin verificación de firma",
+      "problem": "Endpoint de webhook no muestra verificación de firma.",
+      "impact": "Atacantes pueden falsificar eventos de webhook.",
+      "recommendation": "Verifica firmas del proveedor antes de confiar en el payload."
+    },
+    "SW-DOCKER-002": {
+      "title": "Imagen Docker copia .env",
+      "problem": "El Dockerfile copia un archivo .env dentro de la imagen.",
+      "impact": "Secretos pueden quedar embebidos en imágenes y distribuirse.",
+      "recommendation": "Inyecta secretos en runtime y mantén .env fuera de las imágenes."
+    },
+    "SW-CI-001": {
+      "title": "Riesgo en workflow pull_request_target",
+      "problem": "Un workflow usa pull_request_target.",
+      "impact": "Pull requests no confiables pueden acceder a contexto privilegiado si el workflow está mal configurado.",
+      "recommendation": "Usa pull_request cuando sea posible y evita checkout de código no confiable con secretos."
+    },
+    "SW-PROMPT-001": {
+      "title": "Contenido no confiable mezclado en prompt de alta prioridad",
+      "problem": "Contenido de usuario o documento aparece dentro de un prompt system/developer.",
+      "impact": "Prompt injection puede sobrescribir instrucciones previstas.",
+      "recommendation": "Mantén contenido no confiable en contexto de usuario y separado de instrucciones system."
+    },
+    "SW-FIREBASE-001": {
+      "title": "Service account Firebase expuesta",
+      "problem": "Una clave privada de service account Firebase aparece en el código.",
+      "impact": "La credencial puede conceder acceso privilegiado a Firebase.",
+      "recommendation": "Elimina la service account, rota la credencial y cárgala desde un vault server-side."
+    },
+    "SW-SEMA-001": {
+      "title": "Código sensible sin cobertura de contrato Sema",
+      "problem": "Código sensible no tiene contrato .sema aplicable.",
+      "impact": "Correcciones asistidas por IA pueden cambiar comportamiento protegido sin gobernanza semántica.",
+      "recommendation": "Si el proyecto quiere gobernanza Sema, crea o vincula un contrato .sema aplicable."
+    }
+  }
+}

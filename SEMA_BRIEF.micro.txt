@@ -1,0 +1,16 @@
+PROJETO: SentryWard
+MODULOS: 1
+MODO_CODIGO: contratos_apenas
+FONTES_CONCLUSAO: contrato, codigo
+ENTRADA_IA: SEMA_BOOT.md -> SEMA_SMALL_MODEL.md -> llms.txt -> AGENT_CONTEXT_PACK.json -> SEMA_BRIEF.micro.txt -> SEMA_INDEX.json -> AGENTS.md
+POLITICA_PLATAFORMA: Sema governa projeto e nao contorna politicas da plataforma; se houver alerta externo, pare e explique sem burlar filtro
+TIMEOUT_SEMA: timeout local nao e falha; retry progressivo 120s -> 300s -> 600s; escopar arquivo se projeto inteiro for lento
+CODIGO_GOVERNADO: SEMA-GOVERNED -> chamar Sema antes de editar codigo gerado; validacao inline nao dispensa cabecalho fisico
+ORCAMENTO_SEMANTICO: codigo aviso>1000 bloqueio>2000; .sema aviso>300 bloqueio>500; .sema por capacidade, nunca parte_1/parte_2; docs Markdown fora do limite de codigo
+PAYLOAD_MCP: inline>262144 caracteres nao e timeout; modularize por responsabilidade ou use anexo/caminho autorizado
+SINAL_VS_RITUAL: score/achados/decisaoAgente sao triagem; exigir evidencia concreta alem de palavra-chave ou regex
+DESIGN_VISUAL: se houver UI, moderno obrigatorio; fraca=padrao seguro responsivo; media=tokens+estados; forte=screenshot+assets+microinteracoes
+TOP_MODULOS: app.pedidos
+TOP_RISCOS: altera_persistencia, codigo_nao_verificado_neste_modo, criar_pedido:alto (+2)
+TOP_LACUNAS: audit_ausente, auth_ausente, authz_frouxa (+3)
+GERADO_EM: 2026-06-28T21:52:40.632Z

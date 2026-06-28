@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+.sentryward/
+sentryward-report.html
+sentryward-report.json
+.tmp/
+generated/
+*.log

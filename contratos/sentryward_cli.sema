@@ -1,0 +1,299 @@
+module sentryward.cli {
+  docs {
+    resumo: "Contrato do CLI local-first SentryWard: comando ward, i18n, configuracao, watch mode, status e fluxo de fix seguro."
+  }
+
+  enum Idioma {
+    EN,
+    PT_BR,
+    ES
+  }
+
+  enum Severidade {
+    CRITICAL,
+    HIGH,
+    MEDIUM,
+    LOW,
+    INFO
+  }
+
+  entity ConfiguracaoWard {
+    fields {
+      version: Inteiro
+      language: Texto
+      alertThreshold: Severidade
+      debounceMs: Inteiro
+    }
+  }
+
+  entity FindingWard {
+    fields {
+      id: Texto
+      category: Texto
+      severity: Severidade
+      file: Texto
+      line: Inteiro
+      fingerprint: Texto
+    }
+  }
+
+  task inicializar_configuracao {
+    input {
+      projeto: Texto required
+      idioma: Texto
+    }
+    output {
+      config: ConfiguracaoWard
+      sentrywardignore: Texto
+    }
+    authz {
+      escopo: cli.local.init
+      tenant: opcional
+    }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { projeto: interno idioma: publico }
+      output { config: interno sentrywardignore: interno }
+    }
+    audit {
+      evento: sentryward.config.inicializada
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      network.egress
+      log.segredo
+      retorno.credencial
+    }
+    rules {
+      projeto deve_ser preenchido
+      idioma em [en, pt-BR, es]
+    }
+    effects {
+      fs.write configuracao_sentryward criticidade = media
+      auditoria init_cli criticidade = baixa
+    }
+    impl { ts: src.commands.init.runInitCommand }
+    vinculos {
+      arquivo: "src/commands/init.ts"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "10s"
+      retry: "nenhum"
+      compensacao: "remover_arquivos_criados"
+      criticidade_operacional: media
+    }
+    guarantees {
+      config existe
+      sentrywardignore existe
+    }
+    tests {
+      caso "cria config padrao" {
+        given { projeto: "." idioma: "en" }
+        expect { sucesso: verdadeiro config: "version=1" }
+      }
+    }
+  }
+
+  task iniciar_watch {
+    input {
+      projeto: Texto required
+      threshold: Severidade
+    }
+    output {
+      status: Texto
+      findingsPersistidos: Lista
+    }
+    authz { escopo: cli.local.watch tenant: opcional }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { projeto: interno threshold: interno }
+      output { status: publico findingsPersistidos: interno }
+    }
+    audit {
+      evento: sentryward.watch.iniciado
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      network.egress
+      log.segredo
+      retorno.credencial
+    }
+    rules {
+      projeto deve_ser preenchido
+      threshold em [critical, high, medium, low, info]
+    }
+    effects {
+      consulta arquivos_locais criticidade = media
+      fs.write findings_locais criticidade = media
+      auditoria watch_cli criticidade = baixa
+    }
+    impl { ts: src.commands.watch.runWatchCommand }
+    vinculos {
+      arquivo: "src/commands/watch.ts"
+      arquivo: "src/core/watcher.ts"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "continuo"
+      retry: "debounce"
+      compensacao: "encerrar_watcher"
+      criticidade_operacional: media
+    }
+    guarantees {
+      status existe
+      findingsPersistidos existe
+    }
+    tests {
+      caso "watch alerta somente alto critico" {
+        given { projeto: "examples/vulnerable-app" threshold: "high" }
+        expect { sucesso: verdadeiro status: "watching" }
+      }
+    }
+  }
+
+  task explicar_e_corrigir_finding {
+    input {
+      finding_id: Texto required
+      apply: Booleano
+      patch: Booleano
+    }
+    output {
+      plano: Texto
+      aplicado: Booleano
+    }
+    authz { escopo: cli.local.fix tenant: opcional }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { finding_id: interno apply: interno patch: interno }
+      output { plano: publico aplicado: interno }
+    }
+    audit {
+      evento: sentryward.fix.planejado
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      fix_destrutivo_sem_confirmacao
+      log.segredo
+      retorno.credencial
+    }
+    rules {
+      finding_id deve_ser preenchido
+      apply deve_ser confirmado_quando_verdadeiro
+    }
+    effects {
+      consulta findings_locais criticidade = media
+      fs.write patch_opcional criticidade = media
+      auditoria fix_cli criticidade = media
+    }
+    impl { ts: src.commands.fix.runFixCommand }
+    vinculos {
+      arquivo: "src/commands/explain.ts"
+      arquivo: "src/commands/fix.ts"
+      arquivo: "src/core/fixEngine.ts"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "10s"
+      retry: "nenhum"
+      compensacao: "nao_aplicar"
+      criticidade_operacional: alta
+    }
+    guarantees {
+      plano existe
+      aplicado existe
+    }
+    tests {
+      caso "mostra plano sem aplicar" {
+        given { finding_id: "SW-SECRETS-001" apply: falso patch: falso }
+        expect { sucesso: verdadeiro aplicado: falso }
+      }
+    }
+  }
+
+  task executar_gate_sema_para_fix {
+    input {
+      finding_id: Texto required
+      arquivo_afetado: Texto required
+      usar_sema: Booleano required
+      contract_mode: Texto required
+    }
+    output {
+      gate: Texto
+      contrato_aplicavel: Texto
+      constraints: Lista
+      complemento_recomendado: Booleano
+    }
+    authz { escopo: cli.local.sema_gate tenant: opcional }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { finding_id: interno arquivo_afetado: interno usar_sema: interno contract_mode: interno }
+      output { gate: publico contrato_aplicavel: interno constraints: publico complemento_recomendado: publico }
+    }
+    audit {
+      evento: sentryward.sema.gate.executado
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      fix_sem_contrato_quando_required
+      pular_drift
+      pular_impacto
+      log.segredo
+    }
+    rules {
+      finding_id deve_ser preenchido
+      arquivo_afetado deve_ser preenchido
+      usar_sema deve_ser opcional
+      contract_mode em [optional, required]
+    }
+    effects {
+      consulta contrato_sema criticidade = alta
+      consulta drift_sema criticidade = alta
+      consulta impacto_sema criticidade = alta
+      auditoria gate_sema_fix criticidade = alta
+    }
+    impl { ts: src.core.sema_governance.evaluateSemaGateForFinding }
+    vinculos {
+      arquivo: "src/core/semaGovernance.ts"
+      arquivo: "src/commands/fix.ts"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "30s"
+      retry: "nenhum"
+      compensacao: "bloquear_fix"
+      criticidade_operacional: alta
+    }
+    guarantees {
+      gate em [not_requested, passed, passed_with_constraints, blocked, unavailable]
+      constraints existe
+      complemento_recomendado existe
+    }
+    tests {
+      caso "continua sem contrato em modo optional" {
+        given { finding_id: "SW-AUTH-014" arquivo_afetado: "src/api/admin/users.ts" usar_sema: verdadeiro contract_mode: "optional" }
+        expect { sucesso: verdadeiro gate: "unavailable" }
+      }
+      caso "bloqueia sem contrato em modo required" {
+        given { finding_id: "SW-AUTH-014" arquivo_afetado: "src/api/admin/users.ts" usar_sema: verdadeiro contract_mode: "required" }
+        expect { sucesso: verdadeiro gate: "blocked" }
+      }
+    }
+  }
+}

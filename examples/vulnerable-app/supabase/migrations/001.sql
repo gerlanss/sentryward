@@ -1,0 +1,2 @@
+ALTER TABLE public.accounts DISABLE ROW LEVEL SECURITY;
+CREATE POLICY "open" ON public.accounts FOR SELECT USING (true);

@@ -1,0 +1,283 @@
+{
+  "tagline": "Reveal what generated code tries to hide.",
+  "cli": {
+    "description": "Local-first security sentinel for AI-generated code.",
+    "options": {
+      "lang": "output language: en, pt-BR, or es",
+      "governed": "enable optional Sema governance companion checks",
+      "sema": "enable optional Sema companion mode",
+      "contractCheck": "also report optional Sema governance gaps",
+      "requireContract": "strict mode: block fixes without an applicable .sema contract",
+      "apply": "apply safe fixes",
+      "yes": "confirm noninteractive actions",
+      "patch": "create a patch file",
+      "html": "write an HTML report",
+      "json": "write a JSON report",
+      "url": "local development URL"
+    }
+  },
+  "commands": {
+    "watch": "watch the project",
+    "init": "initialize SentryWard config",
+    "scan": "scan a local project",
+    "status": "show current security health",
+    "findings": "list stored findings",
+    "explain": "explain a finding",
+    "fix": "show a fix plan",
+    "report": "generate a report",
+    "surface": "scan browser/frontend exposure",
+    "hooks": "manage local Git hooks",
+    "hooksInstall": "install pre-commit hook",
+    "ci": "manage CI setup",
+    "ciInit": "create GitHub Actions workflow",
+    "sema": "optional Sema companion commands",
+    "semaStatus": "show Sema companion status",
+    "semaInit": "create starter Sema security contract",
+    "semaSync": "sync findings as local Sema events",
+    "path": "path to scan",
+    "findingId": "finding id"
+  },
+  "common": {
+    "enabled": "enabled",
+    "disabled": "disabled",
+    "yes": "yes",
+    "no": "no"
+  },
+  "summary": {
+    "project": "Project",
+    "stack": "Stack",
+    "score": "Security score",
+    "unknown": "unknown"
+  },
+  "severity": {
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "info": "Info"
+  },
+  "finding": {
+    "file": "File",
+    "evidence": "Evidence",
+    "recommendation": "Recommendation"
+  },
+  "watch": {
+    "started": "The ward is watching your project.",
+    "nothing": "Nothing dangerous is currently visible.",
+    "noNewIssues": "No new high or critical issues found."
+  },
+  "init": {
+    "created": "SentryWard config created."
+  },
+  "status": {
+    "noScan": "No stored scan found. Run ward scan . first."
+  },
+  "explain": {
+    "notFound": "Finding not found: {id}",
+    "what": "What happened",
+    "autoFix": "Auto-fix safe",
+    "verify": "Verify after fixing"
+  },
+  "fix": {
+    "title": "SentryWard Fix Plan",
+    "finding": "Finding",
+    "semaGate": "Sema gate",
+    "plan": "Plan",
+    "files": "Files to change",
+    "manual": "Manual steps",
+    "noAutoApply": "This finding is not safe to auto-apply. Review the plan or create a patch.",
+    "needYes": "Use --yes to confirm noninteractive apply.",
+    "patchPlaceholder": "Patch placeholder. This fix requires project-specific editing.",
+    "patchCreated": "Patch file created: {file}",
+    "optionDiff": "Show diff",
+    "optionApply": "Apply",
+    "optionPatch": "Create patch only",
+    "optionCancel": "Cancel",
+    "manual.rotate": "Rotate any exposed secret manually.",
+    "manual.verify": "Verify behavior after the patch.",
+    "plan.useAuthMiddleware": "Use the existing authentication middleware.",
+    "plan.addAdminRole": "Add admin role validation.",
+    "plan.preserveResponse": "Preserve the route response format.",
+    "plan.addAudit": "Add an audit log for the sensitive action.",
+    "plan.rerunScan": "Re-run the SentryWard scan.",
+    "plan.moveSecretBackend": "Move privileged secret usage to backend environment variables.",
+    "plan.addEnvExample": "Add a safe placeholder to .env.example.",
+    "plan.rotateSecret": "Warn that the exposed key must be rotated.",
+    "plan.parameterizeQuery": "Replace string-built SQL with parameterized queries.",
+    "plan.addOwnership": "Add tenant or user ownership checks.",
+    "plan.reviewCode": "Review the vulnerable code path.",
+    "plan.applyMinimalPatch": "Apply the smallest safe patch."
+  },
+  "report": {
+    "impact": "Impact",
+    "generated": "Generated",
+    "wrote": "Report written: {file}"
+  },
+  "hooks": {
+    "noGit": "This is not a Git repository.",
+    "installed": "SentryWard pre-commit hook installed."
+  },
+  "ci": {
+    "created": "Workflow created: {file}"
+  },
+  "surface": {
+    "remoteBlocked": "Only local development URLs are allowed.",
+    "localChecked": "Local surface URL checked: {url}"
+  },
+  "sema": {
+    "governance": "Sema governance",
+    "contractMode": "Contract mode",
+    "driftCheck": "Drift check",
+    "impactMap": "Impact map",
+    "checking": "Checking Sema companion context...",
+    "projectContext": "Project context loaded",
+    "contract": "Applicable contract",
+    "noContract": "no applicable contract",
+    "drift": "Drift analysis completed",
+    "impact": "Impact map generated",
+    "gate": "Gate result",
+    "reason": "Reason",
+    "constraints": "Sema constraints:",
+    "notRequested": "not requested",
+    "evidence": {
+      "noContract": "Sensitive file has no applicable .sema contract: {file}"
+    },
+    "reason.noContractRequired": "No applicable .sema contract found and strict contract mode was requested.",
+    "reason.noContractOptional": "No applicable .sema contract found. Sema is an optional recommended complement.",
+    "reason.blocked": "The Sema gate blocked this fix.",
+    "constraint": {
+      "preserveBehavior": "Preserve existing behavior unless the contract allows a change.",
+      "updateContract": "Update or validate the security contract after the patch when using Sema.",
+      "useExistingAuth": "Use existing authentication middleware.",
+      "preserveRoles": "Preserve the existing role model.",
+      "preservePublicRoutes": "Do not change public route behavior.",
+      "addAudit": "Add audit logging for sensitive admin actions.",
+      "noSecretReturn": "Do not return or log secrets.",
+      "rotateManually": "Rotate exposed secrets manually.",
+      "preserveOwnership": "Preserve tenant and owner boundaries.",
+      "noRawSql": "Do not introduce unsafe raw SQL.",
+      "createContractFirst": "Create or update the applicable .sema contract before changing code.",
+      "recommendedComplement": "Sema can be added as an optional governance complement."
+    },
+    "status": {
+      "available": "Sema project detected",
+      "contracts": "Sema contracts"
+    },
+    "init": {
+      "exists": "Starter contract already exists: {file}",
+      "created": "Starter Sema security contract created: {file}"
+    },
+    "sync": {
+      "done": "Sema events written: {count}"
+    }
+  },
+  "evidence": {
+    "cookieRouteNoCsrf": "Cookie or session route has no visible CSRF protection.",
+    "sensitiveRouteNoRateLimit": "Sensitive route has no visible rate limit.",
+    "webhookNoSignature": "Webhook endpoint has no visible signature verification."
+  },
+  "findings": {
+    "default": {
+      "title": "Security issue detected ({id})",
+      "problem": "A local deterministic rule found a risky security pattern.",
+      "impact": "The issue may expose data, credentials, or protected behavior.",
+      "recommendation": "Review the affected file and apply the smallest safe fix."
+    },
+    "SW-SECRETS-001": {
+      "title": "Stripe secret key exposed",
+      "problem": "A Stripe secret key appears in local code or configuration.",
+      "impact": "Anyone who obtains this key may perform privileged Stripe API actions.",
+      "recommendation": "Move the key to backend-only environment variables and rotate it."
+    },
+    "SW-SECRETS-002": {
+      "title": "OpenAI API key exposed",
+      "problem": "An OpenAI API key appears in local code or configuration.",
+      "impact": "The key can be abused to spend credits or access project resources.",
+      "recommendation": "Remove the key from code, use environment variables, and rotate it."
+    },
+    "SW-SECRETS-003": {
+      "title": "Supabase service role key exposed",
+      "problem": "A Supabase service role credential appears in code.",
+      "impact": "Service role keys can bypass Row Level Security.",
+      "recommendation": "Keep service role keys server-only and rotate the exposed key."
+    },
+    "SW-BROWSER-001": {
+      "title": "Secret exposed in frontend code",
+      "problem": "A private-looking secret appears in code likely shipped to the browser.",
+      "impact": "Attackers can inspect browser bundles and extract the value.",
+      "recommendation": "Move privileged logic to the backend and expose only public client-safe keys."
+    },
+    "SW-BROWSER-002": {
+      "title": "Sensitive route referenced in frontend code",
+      "problem": "Frontend code references a sensitive route.",
+      "impact": "Visibility is not automatically a vulnerability, but it raises risk if backend auth is weak.",
+      "recommendation": "Verify backend-side authentication, role checks, ownership checks, and rate limits."
+    },
+    "SW-AUTH-014": {
+      "title": "Admin route without authentication",
+      "problem": "A sensitive route appears to lack backend authentication or role validation.",
+      "impact": "Anyone may be able to call an administrative endpoint.",
+      "recommendation": "Use existing auth middleware, validate admin role, and preserve route behavior."
+    },
+    "SW-DB-001": {
+      "title": "SQL interpolation risk",
+      "problem": "SQL appears to be built with template interpolation.",
+      "impact": "Untrusted input may alter query behavior.",
+      "recommendation": "Use parameterized queries or safe ORM APIs."
+    },
+    "SW-UPLOAD-001": {
+      "title": "Upload without visible size limit",
+      "problem": "File upload handling has no visible size limit.",
+      "impact": "Large uploads can exhaust disk, memory, or processing resources.",
+      "recommendation": "Add explicit size limits and reject oversized files early."
+    },
+    "SW-CORS-001": {
+      "title": "Wildcard CORS origin",
+      "problem": "CORS allows any origin.",
+      "impact": "Browsers may allow unintended sites to call the API.",
+      "recommendation": "Restrict origins to trusted domains, especially in production."
+    },
+    "SW-SESSION-001": {
+      "title": "JWT stored in browser storage",
+      "problem": "A token is stored in localStorage or sessionStorage.",
+      "impact": "XSS can steal the token.",
+      "recommendation": "Use secure HttpOnly cookies or another safer session design."
+    },
+    "SW-WEBHOOK-001": {
+      "title": "Webhook without signature verification",
+      "problem": "A webhook endpoint has no visible signature verification.",
+      "impact": "Attackers may forge webhook events.",
+      "recommendation": "Verify provider signatures before trusting the payload."
+    },
+    "SW-DOCKER-002": {
+      "title": "Docker image copies .env",
+      "problem": "The Dockerfile copies a .env file into the image.",
+      "impact": "Secrets can be baked into images and distributed.",
+      "recommendation": "Inject secrets at runtime and keep .env out of images."
+    },
+    "SW-CI-001": {
+      "title": "pull_request_target workflow risk",
+      "problem": "A workflow uses pull_request_target.",
+      "impact": "Untrusted pull requests can access privileged workflow context if mishandled.",
+      "recommendation": "Use pull_request where possible and avoid checking out untrusted code with secrets."
+    },
+    "SW-PROMPT-001": {
+      "title": "Untrusted content mixed into high-priority prompt",
+      "problem": "User or document content appears inside a system or developer prompt.",
+      "impact": "Prompt injection can override intended instructions.",
+      "recommendation": "Keep untrusted content in user context and separate it from system instructions."
+    },
+    "SW-FIREBASE-001": {
+      "title": "Firebase service account exposed",
+      "problem": "A Firebase service account private key appears in code.",
+      "impact": "The credential can grant privileged Firebase access.",
+      "recommendation": "Remove the service account, rotate it, and load it from a secure server-side secret store."
+    },
+    "SW-SEMA-001": {
+      "title": "Sensitive code without Sema contract coverage",
+      "problem": "Sensitive code has no applicable .sema contract.",
+      "impact": "AI-assisted fixes may change protected behavior without semantic governance.",
+      "recommendation": "If the project wants Sema governance, create or link an applicable .sema contract."
+    }
+  }
+}

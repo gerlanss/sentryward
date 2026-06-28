@@ -1,0 +1,269 @@
+module sentryward.scanner {
+  docs {
+    resumo: "Contrato do motor SentryWard: coleta de arquivos, guards deterministicos, score, persistencia, surface scan e relatorios localizados."
+  }
+
+  use sentryward.cli
+
+  entity ProjetoDetectado {
+    fields {
+      nome: Texto
+      stack: Lista
+      raiz: Texto
+    }
+  }
+
+  entity ResultadoScan {
+    fields {
+      projeto: ProjetoDetectado
+      findings: Lista
+      score: Inteiro
+      generatedAt: Timestamp
+    }
+  }
+
+  task executar_scan_local {
+    input {
+      alvo: Texto required
+      idioma: Texto
+    }
+    output {
+      resultado: ResultadoScan
+      exitCode: Inteiro
+    }
+    authz { escopo: cli.local.scan tenant: opcional }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { alvo: interno idioma: publico }
+      output { resultado: interno exitCode: publico }
+    }
+    audit {
+      evento: sentryward.scan.executado
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      network.egress
+      exploit.terceiros
+      log.segredo
+      retorno.credencial
+    }
+    rules {
+      alvo deve_ser caminho_local
+      idioma em [en, pt-BR, es]
+    }
+    effects {
+      consulta arquivos_locais criticidade = alta
+      fs.write findings_locais criticidade = media
+      auditoria scan_cli criticidade = media
+    }
+    impl { ts: src.commands.scan.runScanCommand }
+    vinculos {
+      arquivo: "src/core/scanner.ts"
+      arquivo: "src/core/ruleEngine.ts"
+      arquivo: "src/guards/index.ts"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "60s"
+      retry: "nenhum"
+      compensacao: "nao_alterar_codigo_alvo"
+      criticidade_operacional: alta
+    }
+    guarantees {
+      resultado existe
+      exitCode em [0, 1, 2]
+    }
+    tests {
+      caso "detecta app vulneravel" {
+        given { alvo: "examples/vulnerable-app" idioma: "en" }
+        expect { sucesso: verdadeiro exitCode: 1 }
+      }
+    }
+  }
+
+  task executar_surface_local {
+    input {
+      alvo: Texto required
+      url: Texto
+    }
+    output {
+      findings: Lista
+    }
+    authz { escopo: cli.local.surface tenant: opcional }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { alvo: interno url: interno }
+      output { findings: interno }
+    }
+    audit {
+      evento: sentryward.surface.executado
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      url_nao_local
+      exploit.terceiros
+      log.segredo
+    }
+    rules {
+      alvo deve_ser caminho_local
+      url deve_ser local_quando_informada
+    }
+    effects {
+      consulta arquivos_frontend criticidade = alta
+      consulta url_local criticidade = media
+      auditoria surface_cli criticidade = baixa
+    }
+    impl { ts: src.commands.surface.runSurfaceCommand }
+    vinculos {
+      arquivo: "src/commands/surface.ts"
+      arquivo: "src/guards/browserExposure/index.ts"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "30s"
+      retry: "nenhum"
+      compensacao: "ignorar_url_remota"
+      criticidade_operacional: media
+    }
+    guarantees {
+      findings existe
+    }
+    tests {
+      caso "recusa url externa" {
+        given { alvo: "." url: "https://example.com" }
+        expect { sucesso: falso }
+        error { tipo: "url_nao_local" }
+      }
+    }
+  }
+
+  task gerar_relatorio {
+    input {
+      formato: Texto required
+      idioma: Texto
+    }
+    output {
+      arquivo: Texto
+      resultado: ResultadoScan
+    }
+    authz { escopo: cli.local.report tenant: opcional }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { formato: publico idioma: publico }
+      output { arquivo: interno resultado: interno }
+    }
+    audit {
+      evento: sentryward.report.gerado
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      log.segredo
+      retorno.credencial
+    }
+    rules {
+      formato em [html, json]
+      idioma em [en, pt-BR, es]
+    }
+    effects {
+      consulta findings_locais criticidade = media
+      fs.write relatorio_local criticidade = media
+      auditoria report_cli criticidade = baixa
+    }
+    impl { ts: src.commands.report.runReportCommand }
+    vinculos {
+      arquivo: "src/commands/report.ts"
+      arquivo: "src/core/reportEngine.ts"
+      arquivo: "src/reports/htmlTemplate.ts"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "20s"
+      retry: "nenhum"
+      compensacao: "remover_relatorio_parcial"
+      criticidade_operacional: media
+    }
+    guarantees {
+      arquivo existe
+      resultado existe
+    }
+    tests {
+      caso "gera relatorio html" {
+        given { formato: "html" idioma: "en" }
+        expect { sucesso: verdadeiro arquivo: "sentryward-report.html" }
+      }
+    }
+  }
+
+  task verificar_governanca_contratos {
+    input {
+      alvo: Texto required
+      contract_check: Booleano required
+    }
+    output {
+      findings_governanca: Lista
+      modulos_sem_contrato: Lista
+    }
+    authz { escopo: cli.local.contract_check tenant: opcional }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { alvo: interno contract_check: interno }
+      output { findings_governanca: interno modulos_sem_contrato: interno }
+    }
+    audit {
+      evento: sentryward.contract_check.executado
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      codigo_sem_contrato
+      alterar_codigo_durante_scan
+      log.segredo
+    }
+    rules {
+      alvo deve_ser caminho_local
+      contract_check == verdadeiro
+    }
+    effects {
+      consulta contratos_sema criticidade = alta
+      consulta arquivos_sensiveis criticidade = alta
+      auditoria contract_check_cli criticidade = media
+    }
+    impl { ts: src.core.sema_governance.findGovernanceFindings }
+    vinculos {
+      arquivo: "src/core/semaGovernance.ts"
+      arquivo: "src/commands/scan.ts"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "30s"
+      retry: "nenhum"
+      compensacao: "reportar_lacuna"
+      criticidade_operacional: alta
+    }
+    guarantees {
+      findings_governanca existe
+      modulos_sem_contrato existe
+    }
+    tests {
+      caso "aponta rota sensivel sem contrato" {
+        given { alvo: "examples/vulnerable-app" contract_check: verdadeiro }
+        expect { sucesso: verdadeiro findings_governanca: "SW-SEMA-001" }
+      }
+    }
+  }
+}

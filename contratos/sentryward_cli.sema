@@ -140,6 +140,7 @@ module sentryward.cli {
     vinculos {
       arquivo: "src/commands/watch.ts"
       arquivo: "src/core/watcher.ts"
+      arquivo: "src/core/logger.ts"
     }
     execucao {
       idempotencia: verdadeiro

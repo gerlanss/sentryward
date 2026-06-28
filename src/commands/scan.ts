@@ -1,7 +1,7 @@
 // SEMA-GOVERNED: module sentryward.scanner; scan command follows contratos/sentryward_scanner.sema.
 import { resolve } from "node:path";
 import type { Language, Translator } from "../types/index.js";
-import { printFinding, printScanSummary } from "../core/logger.js";
+import { printScanDashboard } from "../core/logger.js";
 import { scanProject } from "../core/scanner.js";
 import { hasHighOrCritical } from "../core/severity.js";
 
@@ -15,9 +15,6 @@ export async function runScanCommand(
     lang: options.lang,
     contractCheck: Boolean(options.contractCheck),
   });
-  printScanSummary(options.t, result.project, result.findings, result.score);
-  for (const finding of result.findings) {
-    printFinding(options.t, finding);
-  }
+  printScanDashboard(options.t, result);
   process.exitCode = hasHighOrCritical(result.findings) ? 1 : 0;
 }

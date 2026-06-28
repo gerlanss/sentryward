@@ -35,8 +35,9 @@ El binario es `ward`. Ejecutar `ward` inicia el modo watch por defecto. Los coma
 
 ## UX Direction
 
-- Professional, sharp, minimal.
-- Use color only to improve status hierarchy.
+- Professional, sharp, compact, and visual.
+- Default scan/watch output should feel like a terminal dashboard: project panel, security score, guard status, spotlight finding card, code context, command hints, and compact finding summary.
+- Use color, borders, and symbols only to improve status hierarchy and scanability.
 - No chatbot-style chatter.
 - Do not hardcode user-facing strings outside locale files.
 - In governed mode, the terminal must show Sema gate status before fix plans when Sema is available. Missing Sema is a recommendation unless strict contract mode was requested.

@@ -64,6 +64,7 @@ module sentryward.scanner {
     vinculos {
       arquivo: "src/core/scanner.ts"
       arquivo: "src/core/ruleEngine.ts"
+      arquivo: "src/core/logger.ts"
       arquivo: "src/guards/index.ts"
     }
     execucao {

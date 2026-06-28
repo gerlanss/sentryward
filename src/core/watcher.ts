@@ -4,7 +4,8 @@ import chokidar from "chokidar";
 import pc from "picocolors";
 import { loadConfig, resolveLanguage } from "./config.js";
 import { loadTranslator } from "./i18n.js";
-import { printFinding, printScanSummary } from "./logger.js";
+import { printScanDashboard, printWatchIntro } from "./logger.js";
+import { detectProject } from "./projectDetector.js";
 import { severityAtLeast } from "./severity.js";
 import { scanProject } from "./scanner.js";
 
@@ -15,14 +16,8 @@ export async function startWatcher(rootInput: string, options: { sema?: boolean;
   const seen = new Set<string>();
 
   console.log(pc.green(`$ ward`));
-  console.log("");
-  console.log(pc.bold("SentryWard"));
-  console.log(t("watch.started"));
-  console.log("");
+  printWatchIntro(t, await detectProject(root), options);
   console.log(`${t("sema.governance")}: ${options.sema || options.governed ? t("common.enabled") : t("common.disabled")}`);
-  console.log(`${t("sema.contractMode")}: ${config.sema.contractMode}`);
-  console.log(`${t("sema.driftCheck")}: ${config.sema.driftCheck ? t("common.enabled") : t("common.disabled")}`);
-  console.log(`${t("sema.impactMap")}: ${config.sema.impactMap ? t("common.enabled") : t("common.disabled")}`);
 
   const watcher = chokidar.watch(root, {
     ignored: /(^|[\\/])(\.git|node_modules|dist|build|coverage|\.next|\.venv|vendor)([\\/]|$)/,
@@ -50,10 +45,7 @@ export async function startWatcher(rootInput: string, options: { sema?: boolean;
       console.log(pc.green(t("watch.noNewIssues")));
       return;
     }
-    printScanSummary(t, result.project, result.findings, result.score);
-    for (const alert of newAlerts) {
-      printFinding(t, alert);
-    }
+    printScanDashboard(t, { ...result, findings: newAlerts });
   }
 
   watcher.on("all", (_event, filePath) => {

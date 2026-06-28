@@ -9,12 +9,14 @@ SentryWard ships as the `sentryward` npm package with the `ward` binary.
 - Chokidar watch mode.
 - Zod config validation.
 - Deterministic local guards.
+- Compact terminal dashboard for scan/watch output.
 - Locale files for English, Portuguese Brazil, and Spanish.
 - Vitest coverage and CI workflow.
 
 ## Operational Rules
 
 - Running `ward` starts watch mode.
+- Scan/watch output should show project context, score, active guards, spotlight findings, code context, and next commands in a compact TUI-style layout.
 - No external AI calls in the MVP.
 - No telemetry.
 - No source upload.

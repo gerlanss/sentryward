@@ -6,6 +6,9 @@ SentryWard is a local-first CLI security sentinel for developers who build softw
 
 SentryWard works without Sema. If a person or team wants semantic governance for fixes, Sema is an excellent optional complement: SentryWard sees the risk, Sema can govern the change, and an AI/coding agent can propose or apply a constrained fix.
 
+Official site: [otimitare.online](https://otimitare.online)  
+Support: [suporte@otimitare.online](mailto:suporte@otimitare.online)
+
 ## Install
 
 ```bash

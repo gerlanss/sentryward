@@ -4,7 +4,7 @@ SentryWard is defensive local tooling.
 
 ## Reporting Vulnerabilities
 
-Open a private security advisory or contact the maintainers with:
+Open a private security advisory or contact support at suporte@otimitare.online with:
 
 - affected version or commit,
 - reproduction steps,

@@ -1,8 +1,16 @@
 {
   "name": "sentryward",
-  "version": "0.1.0",
-  "description": "Local-first security sentinel for AI-generated code.",
+  "version": "0.1.1",
+  "description": "Local-first security CLI for AI-generated code.",
   "type": "module",
+  "homepage": "https://otimitare.online",
+  "bugs": {
+    "email": "suporte@otimitare.online"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/gerlanss/sentryward.git"
+  },
   "bin": {
     "ward": "./dist/cli.js"
   },

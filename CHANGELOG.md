@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- Added official project site: https://otimitare.online.
+- Added official support contact: suporte@otimitare.online.
+- Updated public package metadata and CLI version.
+
 ## 0.1.0
 
 - Initial SentryWard CLI MVP.

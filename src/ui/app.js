@@ -93,8 +93,8 @@ const messages = {
     restoredDone: "Finding restored.",
     useCtrl: "Tip: hold Ctrl while clicking to select more than one.",
     folderTitle: "Choose project folder",
-    folderHelp: "Enter folders to browse, then select one as the active project.",
-    folderOpen: "Enter",
+    folderHelp: "Click a folder row to enter it, then select the current folder as the active project.",
+    folderOpen: "Open {name}",
     folderGoAction: "Go to path",
     folderParent: "Back",
     folderUse: "Select project",
@@ -194,8 +194,8 @@ const messages = {
     restoredDone: "Achado restaurado.",
     useCtrl: "Dica: segure Ctrl ao clicar para selecionar mais de um.",
     folderTitle: "Escolher pasta do projeto",
-    folderHelp: "Entre nas pastas para navegar e depois selecione uma como projeto ativo.",
-    folderOpen: "Entrar",
+    folderHelp: "Clique em uma pasta para entrar nela e depois selecione a pasta atual como projeto ativo.",
+    folderOpen: "Abrir {name}",
     folderGoAction: "Ir para caminho",
     folderParent: "Voltar",
     folderUse: "Selecionar projeto",
@@ -295,8 +295,8 @@ const messages = {
     restoredDone: "Hallazgo restaurado.",
     useCtrl: "Tip: mant\u00e9n Ctrl al hacer clic para seleccionar m\u00e1s de uno.",
     folderTitle: "Elegir carpeta del proyecto",
-    folderHelp: "Entra en carpetas para navegar y luego selecciona una como proyecto activo.",
-    folderOpen: "Entrar",
+    folderHelp: "Haz clic en una carpeta para entrar y luego selecciona la carpeta actual como proyecto activo.",
+    folderOpen: "Abrir {name}",
     folderGoAction: "Ir a ruta",
     folderParent: "Volver",
     folderUse: "Seleccionar proyecto",
@@ -1077,10 +1077,10 @@ function renderFolderDialog() {
     ? folder.entries
         .map(
           (entry) => `
-            <div class="folder-row">
+            <button type="button" class="folder-row" data-folder="${escapeHtml(entry.path)}" aria-label="${escapeHtml(t("folderOpen", { name: entry.name }))}">
               <strong>${escapeHtml(entry.name)}</strong>
-              <button type="button" data-folder="${escapeHtml(entry.path)}">${escapeHtml(t("folderOpen"))}</button>
-            </div>
+              <span class="folder-row-action" aria-hidden="true">&gt;</span>
+            </button>
           `,
         )
         .join("")

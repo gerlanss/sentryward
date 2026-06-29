@@ -12,9 +12,10 @@ import { countBySeverity } from "./severity.js";
 import { readScanResult } from "./storage.js";
 import type { Language, ScanResult, Severity, WardConfig } from "../types/index.js";
 
-const UI_VERSION = "0.1.9";
+const UI_VERSION = "0.1.10";
 const DEFAULT_PORT = 7331;
 const HOST = "127.0.0.1";
+const SEMA_TOGGLE_PATHS = new Set(["/api/sema", "/api/sema-governance", "/api/governance/sema"]);
 
 const contentTypes: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -279,7 +280,7 @@ async function handleApi(
     return;
   }
 
-  if (request.method === "POST" && requestUrl.pathname === "/api/sema") {
+  if (request.method === "POST" && SEMA_TOGGLE_PATHS.has(requestUrl.pathname)) {
     const body = await readBody(request);
     if (typeof body.enabled !== "boolean") {
       writeError(response, 400, "Missing enabled boolean.");

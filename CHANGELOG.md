@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.10
+
+- Make folder rows in the visual UI clickable so browsing folders no longer depends on a separate Enter button.
+- Keep optional Sema governance toggles compatible with supported local API routes.
+- Add local UI API documentation for Sema toggle and folder picker behavior.
+
 ## 0.1.9
 
 - Clarified visual UI scan modes with explicit manual scan versus continuous rescan controls.

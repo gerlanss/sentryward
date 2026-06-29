@@ -10,6 +10,9 @@ describe("SentryWard UI assets", () => {
     expect(html).toContain("scan-mode-value");
     expect(html).toContain("project-card-folder-button");
     expect(html).toContain("folder-help");
+    expect(app).toContain("class=\"folder-row\"");
+    expect(app).toContain("folder-row-action");
+    expect(app).toContain("/api/sema");
     expect(app).toContain("Varredura contínua");
     expect(app).toContain("Selecionar projeto");
     expect(app).toContain("ward watch do terminal");

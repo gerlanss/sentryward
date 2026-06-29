@@ -67,6 +67,15 @@ describe("SentryWard UI server", () => {
     );
     expect((enabled.overview as any).config.sema.enabled).toBe(true);
 
+    const aliasDisabled = await json(
+      await fetch(`${server.url}api/sema-governance`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ enabled: false }),
+      }),
+    );
+    expect((aliasDisabled.overview as any).config.sema.enabled).toBe(false);
+
     const scan = await json(
       await fetch(`${server.url}api/scan`, {
         method: "POST",
@@ -74,15 +83,24 @@ describe("SentryWard UI server", () => {
         body: JSON.stringify({ target: "." }),
       }),
     );
-    expect((scan.scan as any).findings.some((finding: any) => finding.id === "SW-SEMA-001")).toBe(true);
+    expect((scan.scan as any).findings.some((finding: any) => finding.id === "SW-SEMA-001")).toBe(false);
 
-    const disabled = await json(
-      await fetch(`${server.url}api/sema`, {
+    const reenabled = await json(
+      await fetch(`${server.url}api/governance/sema`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ enabled: false }),
+        body: JSON.stringify({ enabled: true }),
       }),
     );
-    expect((disabled.overview as any).config.sema.enabled).toBe(false);
+    expect((reenabled.overview as any).config.sema.enabled).toBe(true);
+
+    const governedScan = await json(
+      await fetch(`${server.url}api/scan`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ target: "." }),
+      }),
+    );
+    expect((governedScan.scan as any).findings.some((finding: any) => finding.id === "SW-SEMA-001")).toBe(true);
   });
 });

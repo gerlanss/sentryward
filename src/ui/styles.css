@@ -699,17 +699,38 @@ input {
 
 .folder-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) 28px;
   gap: 10px;
   align-items: center;
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface-2);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
 }
 
 .folder-row strong {
   overflow-wrap: anywhere;
+}
+
+.folder-row:hover,
+.folder-row:focus-visible {
+  border-color: var(--accent);
+  background: rgba(165, 54, 255, 0.12);
+  outline: none;
+}
+
+.folder-row-action {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--accent-2);
 }
 
 .folder-error {

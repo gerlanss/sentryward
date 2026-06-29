@@ -8,6 +8,7 @@ Create and maintain the local SentryWard interface opened by `ward ui`.
 
 - Local-only web interface served from the CLI process.
 - Visual project dashboard, security summary, findings list, settings, folder picker, source context, copy actions, and ignore/restore controls.
+- Dashboard scan mode is explicit: manual scan by default, optional continuous browser rescan when the operator turns it on, and terminal `ward watch` remains the filesystem event watch flow.
 - Language switching refreshes the active scan so finding titles, impact, recommendations, evidence, and details match the selected locale.
 - No external hosting, no source upload, no telemetry, and no remote target scanning.
 - The terminal `ward` workflow remains available for quick CLI usage.
@@ -34,6 +35,7 @@ Create and maintain the local SentryWard interface opened by `ward ui`.
 - `node dist/cli.js ui --no-open --port <free-port>`
 - HTTP smoke check for the UI HTML and API endpoints.
 - Browser smoke check when practical to confirm the dashboard renders, folder picker works, findings can be selected, code context appears, and action buttons respond.
+- Dashboard smoke check must confirm scan mode text, continuous rescan toggle state, and folder picker action labels.
 
 ## Rollback
 

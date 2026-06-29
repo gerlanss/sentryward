@@ -1,6 +1,6 @@
 {
   "name": "sentryward",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Local-first security CLI for AI-generated code.",
   "type": "module",
   "homepage": "https://otimitare.online",

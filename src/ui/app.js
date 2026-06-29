@@ -2,6 +2,7 @@
 // SEMA-GOVERNED: module sentryward.ui; browser behavior follows contratos/sentryward_ui.sema.
 const severityOrder = ["critical", "high", "medium", "low", "info"];
 const languages = ["en", "pt-BR", "es"];
+const autoScanIntervalMs = 15000;
 
 const messages = {
   en: {
@@ -20,6 +21,23 @@ const messages = {
     localUi: "Local UI",
     title: "SentryWard",
     scan: "Run scan",
+    scanNow: "Run now",
+    scanMode: "Scan mode",
+    manualMode: "Manual scan",
+    continuousMode: "Continuous scan",
+    startContinuous: "Start continuous scan",
+    stopContinuous: "Stop continuous scan",
+    manualModeCopy: "This visual UI scans when you click Run scan. Terminal ward watch is still the file-event watch mode.",
+    continuousModeCopy: "This browser panel rescans every {seconds}s while it stays open.",
+    continuousStarted: "Continuous scan enabled.",
+    continuousStopped: "Continuous scan stopped.",
+    activeProject: "Active project",
+    projectCardCopy: "Choose the folder that SentryWard should inspect.",
+    changeFolder: "Change folder",
+    lastScan: "Last scan",
+    never: "Never",
+    lastScanDetail: "Use Run scan or enable continuous scan.",
+    scannedAt: "Scanned at {time}",
     copySelected: "Copy selected",
     copyAll: "Copy all findings",
     reviewFindings: "Review findings",
@@ -75,9 +93,11 @@ const messages = {
     restoredDone: "Finding restored.",
     useCtrl: "Tip: hold Ctrl while clicking to select more than one.",
     folderTitle: "Choose project folder",
-    folderOpen: "Open",
-    folderParent: "Parent",
-    folderUse: "Use this folder",
+    folderHelp: "Enter folders to browse, then select one as the active project.",
+    folderOpen: "Enter",
+    folderGoAction: "Go to path",
+    folderParent: "Back",
+    folderUse: "Select project",
     folderChanged: "Project folder changed.",
     folderFailed: "Could not open folder",
     folderEmpty: "No child folders here.",
@@ -102,6 +122,23 @@ const messages = {
     localUi: "Interface local",
     title: "SentryWard",
     scan: "Rodar scan",
+    scanNow: "Rodar agora",
+    scanMode: "Modo de scan",
+    manualMode: "Scan manual",
+    continuousMode: "Varredura contínua",
+    startContinuous: "Ativar varredura contínua",
+    stopContinuous: "Parar varredura contínua",
+    manualModeCopy: "Esta interface visual escaneia quando você clica em Rodar scan. O ward watch do terminal continua sendo o watch por evento de arquivo.",
+    continuousModeCopy: "Este painel do navegador reescaneia a cada {seconds}s enquanto ficar aberto.",
+    continuousStarted: "Varredura contínua ativada.",
+    continuousStopped: "Varredura contínua parada.",
+    activeProject: "Projeto ativo",
+    projectCardCopy: "Escolha a pasta que o SentryWard deve inspecionar.",
+    changeFolder: "Trocar pasta",
+    lastScan: "Último scan",
+    never: "Nunca",
+    lastScanDetail: "Use Rodar scan ou ative a varredura contínua.",
+    scannedAt: "Escaneado às {time}",
     copySelected: "Copiar selecionados",
     copyAll: "Copiar todos os achados",
     reviewFindings: "Revisar achados",
@@ -157,9 +194,11 @@ const messages = {
     restoredDone: "Achado restaurado.",
     useCtrl: "Dica: segure Ctrl ao clicar para selecionar mais de um.",
     folderTitle: "Escolher pasta do projeto",
-    folderOpen: "Abrir",
-    folderParent: "Pasta acima",
-    folderUse: "Usar esta pasta",
+    folderHelp: "Entre nas pastas para navegar e depois selecione uma como projeto ativo.",
+    folderOpen: "Entrar",
+    folderGoAction: "Ir para caminho",
+    folderParent: "Voltar",
+    folderUse: "Selecionar projeto",
     folderChanged: "Pasta do projeto alterada.",
     folderFailed: "N\u00e3o foi poss\u00edvel abrir a pasta",
     folderEmpty: "N\u00e3o h\u00e1 subpastas aqui.",
@@ -184,6 +223,23 @@ const messages = {
     localUi: "Interfaz local",
     title: "SentryWard",
     scan: "Ejecutar scan",
+    scanNow: "Ejecutar ahora",
+    scanMode: "Modo de scan",
+    manualMode: "Scan manual",
+    continuousMode: "Scan continuo",
+    startContinuous: "Activar scan continuo",
+    stopContinuous: "Detener scan continuo",
+    manualModeCopy: "Esta interfaz visual escanea cuando haces clic en Ejecutar scan. ward watch en terminal sigue siendo el watch por evento de archivo.",
+    continuousModeCopy: "Este panel del navegador reescanea cada {seconds}s mientras esté abierto.",
+    continuousStarted: "Scan continuo activado.",
+    continuousStopped: "Scan continuo detenido.",
+    activeProject: "Proyecto activo",
+    projectCardCopy: "Elige la carpeta que SentryWard debe inspeccionar.",
+    changeFolder: "Cambiar carpeta",
+    lastScan: "Último scan",
+    never: "Nunca",
+    lastScanDetail: "Usa Ejecutar scan o activa el scan continuo.",
+    scannedAt: "Escaneado a las {time}",
     copySelected: "Copiar seleccionados",
     copyAll: "Copiar todos los hallazgos",
     reviewFindings: "Revisar hallazgos",
@@ -239,9 +295,11 @@ const messages = {
     restoredDone: "Hallazgo restaurado.",
     useCtrl: "Tip: mant\u00e9n Ctrl al hacer clic para seleccionar m\u00e1s de uno.",
     folderTitle: "Elegir carpeta del proyecto",
-    folderOpen: "Abrir",
-    folderParent: "Carpeta superior",
-    folderUse: "Usar esta carpeta",
+    folderHelp: "Entra en carpetas para navegar y luego selecciona una como proyecto activo.",
+    folderOpen: "Entrar",
+    folderGoAction: "Ir a ruta",
+    folderParent: "Volver",
+    folderUse: "Seleccionar proyecto",
     folderChanged: "Carpeta del proyecto cambiada.",
     folderFailed: "No se pudo abrir la carpeta",
     folderEmpty: "No hay subcarpetas aqu\u00ed.",
@@ -269,6 +327,9 @@ const state = {
   activity: [],
   source: undefined,
   folder: undefined,
+  autoScanEnabled: false,
+  autoScanTimer: undefined,
+  scanRunning: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -296,6 +357,17 @@ const elements = {
   pageTitle: $("#page-title"),
   eyeline: $("#eyeline"),
   scanButton: $("#scan-button"),
+  autoScanToggle: $("#auto-scan-toggle"),
+  scanModeTitle: $("#scan-mode-title"),
+  scanModeValue: $("#scan-mode-value"),
+  scanModeCopy: $("#scan-mode-copy"),
+  projectCardTitle: $("#project-card-title"),
+  projectCardPath: $("#project-card-path"),
+  projectCardCopy: $("#project-card-copy"),
+  projectCardFolderButton: $("#project-card-folder-button"),
+  lastScanTitle: $("#last-scan-title"),
+  lastScanValue: $("#last-scan-value"),
+  lastScanDetail: $("#last-scan-detail"),
   copySelectedButton: $("#copy-selected-button"),
   settingsButton: $("#settings-button"),
   scoreTitle: $("#score-title"),
@@ -334,6 +406,7 @@ const elements = {
   folderModal: $("#folder-modal"),
   folderTitle: $("#folder-title"),
   folderCurrent: $("#folder-current"),
+  folderHelp: $("#folder-help"),
   folderClose: $("#folder-close"),
   folderPathInput: $("#folder-path-input"),
   folderGo: $("#folder-go"),
@@ -449,6 +522,24 @@ function addActivity(line) {
   renderActivity();
 }
 
+function formatTime(value) {
+  if (!value) return t("never");
+  return new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+function renderScanMode() {
+  const continuous = state.autoScanEnabled;
+  setText(elements.scanModeValue, continuous ? t("continuousMode") : t("manualMode"));
+  setText(
+    elements.scanModeCopy,
+    continuous ? t("continuousModeCopy", { seconds: autoScanIntervalMs / 1000 }) : t("manualModeCopy"),
+  );
+  setText(elements.autoScanToggle, continuous ? t("stopContinuous") : t("startContinuous"));
+  elements.autoScanToggle.setAttribute("aria-pressed", String(continuous));
+  elements.autoScanToggle.classList.toggle("danger", continuous);
+  setText(elements.watchState, continuous ? t("continuousMode") : t("localUi"));
+}
+
 function renderStaticCopy() {
   document.documentElement.lang = state.language;
   setText(elements.brandTagline, t("brandTagline"));
@@ -465,6 +556,11 @@ function renderStaticCopy() {
   setText(elements.pageTitle, t("title"));
   setText(elements.eyeline, t("localUi"));
   setText(elements.scanButton, t("scan"));
+  setText(elements.scanModeTitle, t("scanMode"));
+  setText(elements.projectCardTitle, t("activeProject"));
+  setText(elements.projectCardCopy, t("projectCardCopy"));
+  setText(elements.projectCardFolderButton, t("changeFolder"));
+  setText(elements.lastScanTitle, t("lastScan"));
   setText(elements.copySelectedButton, t("copySelected"));
   setText(elements.settingsButton, t("settings"));
   setText(elements.scoreTitle, t("score"));
@@ -487,7 +583,8 @@ function renderStaticCopy() {
   setText(elements.settingsGovernanceTitle, t("governanceTitle"));
   setText(elements.settingsGovernanceCopy, t("governanceCopy"));
   setText(elements.folderTitle, t("folderTitle"));
-  setText(elements.folderGo, t("folderOpen"));
+  setText(elements.folderHelp, t("folderHelp"));
+  setText(elements.folderGo, t("folderGoAction"));
   setText(elements.folderUp, t("folderParent"));
   setText(elements.folderSelect, t("folderUse"));
   $$("[data-tab-target='findings']").forEach((button) => setText(button, t("reviewFindings")));
@@ -531,6 +628,8 @@ function renderOverview() {
   setText(elements.projectName, project?.name ?? "unknown");
   setText(elements.projectStack, formatStack(project));
   setText(elements.projectRoot, project?.root ?? "");
+  setText(elements.projectCardPath, project?.root ?? "");
+  renderScanMode();
 
   const semaEnabled = Boolean(overview?.config?.sema?.enabled);
   const semaText = semaEnabled ? t("semaEnabled") : t("semaDisabled");
@@ -553,6 +652,8 @@ function renderOverview() {
     elements.scanSummary,
     scan ? t("scanSummary", { files: scan.scannedFiles, findings: active.length, ignored: ignored.length }) : t("noScan"),
   );
+  setText(elements.lastScanValue, scan ? t("scannedAt", { time: formatTime(scan.generatedAt) }) : t("never"));
+  setText(elements.lastScanDetail, state.autoScanEnabled ? t("continuousModeCopy", { seconds: autoScanIntervalMs / 1000 }) : t("lastScanDetail"));
   setText(elements.ignoredState, t("ignoredCount", { count: ignored.length }));
   severityOrder.forEach((severity) => setText($(`#count-${severity}`), String(counts[severity])));
 
@@ -831,7 +932,10 @@ async function loadOverview() {
 }
 
 async function runScan() {
+  if (state.scanRunning) return;
+  state.scanRunning = true;
   elements.scanButton.disabled = true;
+  elements.autoScanToggle.disabled = true;
   addActivity(t("scanning"));
   try {
     const data = await requestJson("/api/scan", {
@@ -852,8 +956,44 @@ async function runScan() {
     addActivity(`${t("scanFailed")}: ${error.message}`);
     toast(`${t("scanFailed")}: ${error.message}`);
   } finally {
+    state.scanRunning = false;
     elements.scanButton.disabled = false;
+    elements.autoScanToggle.disabled = false;
+    renderScanMode();
   }
+}
+
+function stopAutoScan(showMessage = true) {
+  if (state.autoScanTimer) {
+    window.clearInterval(state.autoScanTimer);
+    state.autoScanTimer = undefined;
+  }
+  state.autoScanEnabled = false;
+  if (showMessage) {
+    addActivity(t("continuousStopped"));
+    toast(t("continuousStopped"));
+  }
+  renderOverview();
+}
+
+function startAutoScan() {
+  if (state.autoScanTimer) {
+    window.clearInterval(state.autoScanTimer);
+  }
+  state.autoScanEnabled = true;
+  state.autoScanTimer = window.setInterval(() => void runScan(), autoScanIntervalMs);
+  addActivity(t("continuousStarted"));
+  toast(t("continuousStarted"));
+  renderOverview();
+  void runScan();
+}
+
+function toggleAutoScan() {
+  if (state.autoScanEnabled) {
+    stopAutoScan();
+    return;
+  }
+  startAutoScan();
 }
 
 async function changeLanguage(language) {
@@ -971,6 +1111,9 @@ async function selectFolder() {
     addActivity(t("folderChanged"));
     toast(t("folderChanged"));
     renderOverview();
+    if (state.autoScanEnabled) {
+      void runScan();
+    }
   } catch (error) {
     showFolderError(`${t("folderFailed")}: ${error.message}`);
   }
@@ -982,6 +1125,7 @@ function bindEvents() {
   $$("[data-action='copy-all']").forEach((button) => button.addEventListener("click", () => void copySelectedFindings(true)));
   $$("[data-action='select-all']").forEach((button) => button.addEventListener("click", selectAllVisible));
   elements.scanButton.addEventListener("click", () => void runScan());
+  elements.autoScanToggle.addEventListener("click", toggleAutoScan);
   elements.copySelectedButton.addEventListener("click", () => void copySelectedFindings());
   elements.settingsButton.addEventListener("click", () => setActiveTab("settings"));
   elements.selectVisibleButton.addEventListener("click", selectAllVisible);
@@ -997,6 +1141,7 @@ function bindEvents() {
   });
   elements.folderButton.addEventListener("click", () => void openFolderDialog());
   elements.settingsFolderButton.addEventListener("click", () => void openFolderDialog());
+  elements.projectCardFolderButton.addEventListener("click", () => void openFolderDialog());
   elements.folderClose.addEventListener("click", () => {
     elements.folderModal.hidden = true;
   });
@@ -1009,6 +1154,7 @@ function bindEvents() {
   elements.languageSelect.addEventListener("change", () => void changeLanguage(elements.languageSelect.value));
   elements.settingsLanguageSelect.addEventListener("change", () => void changeLanguage(elements.settingsLanguageSelect.value));
   elements.settingsSemaToggle.addEventListener("click", () => void toggleSemaGovernance());
+  window.addEventListener("beforeunload", () => stopAutoScan(false));
 }
 
 bindEvents();

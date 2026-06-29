@@ -18,7 +18,9 @@ SentryWard ships as the `sentryward` npm package with the `ward` binary.
 
 - Running `ward` starts a compact home with a chat-style slash-command console.
 - Running `ward ui` starts the main visual interface on `127.0.0.1`, opens the browser by default, and keeps all scan actions local.
-- The browser UI shows project status, Sema complement state, score, findings, settings, folder selection, exact code context, copy actions, and ignored/restored findings.
+- The browser UI shows project status, Sema complement state, score, explicit scan mode, optional continuous rescan, findings, settings, folder selection, exact code context, copy actions, and ignored/restored findings.
+- The browser UI must distinguish manual scan, continuous browser rescan, and terminal `ward watch` filesystem watch behavior.
+- Folder selection must make "enter folder" different from "select project".
 - The browser UI is click-first and must not depend on a command composer.
 - Scan/watch output should show project context, score, active guards, spotlight findings, code context, and next commands in a compact TUI-style layout.
 - Watch mode must accept slash commands: `/help`, `/scan`, `/status`, `/findings`, `/explain <id>`, `/fix <id>`, `/home`, `/panel`, `/settings`, `/lang <en|pt-BR|es>`, `/clear`, and `/quit`.

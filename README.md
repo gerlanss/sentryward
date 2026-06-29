@@ -80,7 +80,7 @@ ward ui . --port 7331
 ward ui C:\GitHub\my-app --no-open
 ```
 
-The UI is served only on `127.0.0.1` by the local CLI process. It shows project context, Sema complement status, score, findings, settings, local folder selection, exact code context, copy buttons, multi-select, and ignored/restored findings. Open Settings to enable or disable optional Sema governance for contract coverage checks. The browser UI is click-first; slash commands stay in the terminal watch console.
+The UI is served only on `127.0.0.1` by the local CLI process. It shows project context, Sema complement status, score, scan mode, findings, settings, local folder selection, exact code context, copy buttons, multi-select, and ignored/restored findings. By default the visual UI scans when you click Run scan; turn on continuous rescan in the dashboard when you want the browser panel to keep itself fresh. The terminal `ward` / `ward watch` flow remains the event-driven filesystem watch mode. Open Settings to enable or disable optional Sema governance for contract coverage checks. The browser UI is click-first; slash commands stay in the terminal watch console.
 
 ## Language
 

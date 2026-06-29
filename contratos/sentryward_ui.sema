@@ -15,6 +15,8 @@ module sentryward.ui {
       idioma: Texto
       aba_ativa: Texto
       sema_governance: Booleano
+      scan_mode: Texto
+      auto_scan: Booleano
     }
   }
 
@@ -101,7 +103,7 @@ module sentryward.ui {
       servidorAtivo == verdadeiro
       url existe
       estado existe
-      estado em [dashboard_visual, achados_visual, ajustes_visual, pasta_visual]
+      estado em [dashboard_visual, achados_visual, ajustes_visual, pasta_visual, scan_modo_visual]
     }
     tests {
       caso "abre interface local sem navegador" {
@@ -115,6 +117,10 @@ module sentryward.ui {
       caso "scan pela interface atualiza findings" {
         given { projeto: "examples/vulnerable-app" porta: 0 idioma: "en" abrir_navegador: falso }
         expect { sucesso: verdadeiro estado: "findings_atualizados" }
+      }
+      caso "dashboard diferencia scan manual e varredura continua" {
+        given { projeto: "." porta: 0 idioma: "pt-BR" abrir_navegador: falso }
+        expect { sucesso: verdadeiro estado: "scan_modo_visual" }
       }
     }
   }
@@ -188,6 +194,10 @@ module sentryward.ui {
       caso "troca projeto ativo pela interface" {
         given { pasta_atual: "." pasta_destino: "examples/vulnerable-app" selecionar: verdadeiro }
         expect { sucesso: verdadeiro estado: "pasta_visual" }
+      }
+      caso "diferencia entrar na pasta e selecionar projeto" {
+        given { pasta_atual: "." pasta_destino: "examples/vulnerable-app" selecionar: falso }
+        expect { sucesso: verdadeiro diretorio: "entrar_pasta" }
       }
     }
   }

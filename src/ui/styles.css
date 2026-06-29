@@ -291,9 +291,17 @@ input {
   gap: 16px;
 }
 
+.dashboard-ops-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
 .score-panel,
 .severity-panel,
 .timeline-panel,
+.operation-card,
 .findings-list-panel,
 .finding-detail-panel,
 .settings-card,
@@ -337,10 +345,31 @@ input {
 
 .severity-panel,
 .timeline-panel,
+.operation-card,
 .findings-list-panel,
 .finding-detail-panel,
 .settings-card {
   padding: 18px;
+}
+
+.operation-card {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.operation-card strong {
+  overflow-wrap: anywhere;
+  font-size: 16px;
+}
+
+.operation-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.operation-card button {
+  justify-self: start;
 }
 
 .severity-row {
@@ -635,6 +664,10 @@ input {
   margin-bottom: 14px;
 }
 
+.folder-dialog header p {
+  margin: 4px 0 0;
+}
+
 .folder-dialog footer {
   justify-content: flex-end;
   margin-top: 14px;
@@ -715,6 +748,7 @@ input {
   }
 
   .dashboard-grid,
+  .dashboard-ops-grid,
   .findings-layout,
   .settings-grid {
     grid-template-columns: 1fr;

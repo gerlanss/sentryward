@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.9
+
+- Clarified visual UI scan modes with explicit manual scan versus continuous rescan controls.
+- Expanded the dashboard with scan mode, active project, and last scan context.
+- Improved project folder copy and actions so entering a folder is distinct from selecting it as the active project.
+
 ## 0.1.8
 
 - Added a visual Settings control to enable or disable optional Sema governance from `ward ui`.

@@ -40,7 +40,7 @@ const program = new Command();
 program
   .name("ward")
   .description(t("cli.description"))
-  .version("0.1.8")
+  .version("0.1.9")
   .option("--lang <language>", t("cli.options.lang"))
   .option("--governed", t("cli.options.governed"))
   .option("--sema", t("cli.options.sema"));

@@ -6,7 +6,7 @@ import pc from "picocolors";
 import type { Finding, FindingCategory, ProjectInfo, ScanResult, SemaGateResult, Severity, Translator } from "../types/index.js";
 import { countBySeverity, severityRank } from "./severity.js";
 
-const VERSION = "v0.1.8";
+const VERSION = "v0.1.9";
 const ANSI_PATTERN = new RegExp(String.raw`\x1B\[[0-?]*[ -/]*[@-~]`, "g");
 const SEVERITIES: Severity[] = ["critical", "high", "medium", "low", "info"];
 const CATEGORY_ORDER: FindingCategory[] = [

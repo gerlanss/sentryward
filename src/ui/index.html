@@ -100,6 +100,26 @@ Description: local browser shell for ward ui; consult contratos/sentryward_ui.se
             </article>
           </div>
 
+          <div class="dashboard-ops-grid">
+            <article class="operation-card">
+              <h2 id="scan-mode-title">Scan mode</h2>
+              <strong id="scan-mode-value">Manual scan</strong>
+              <p id="scan-mode-copy">Run scans on demand from this visual panel.</p>
+              <button type="button" id="auto-scan-toggle" class="secondary">Start continuous scan</button>
+            </article>
+            <article class="operation-card">
+              <h2 id="project-card-title">Active project</h2>
+              <strong id="project-card-path">loading</strong>
+              <p id="project-card-copy">Choose the folder that SentryWard should inspect.</p>
+              <button type="button" id="project-card-folder-button" class="secondary">Change folder</button>
+            </article>
+            <article class="operation-card">
+              <h2 id="last-scan-title">Last scan</h2>
+              <strong id="last-scan-value">Never</strong>
+              <p id="last-scan-detail">Use Run scan or enable continuous scan.</p>
+            </article>
+          </div>
+
           <div class="action-strip">
             <button type="button" data-tab-target="findings">Review findings</button>
             <button type="button" data-action="copy-all">Copy all findings</button>
@@ -190,6 +210,7 @@ Description: local browser shell for ward ui; consult contratos/sentryward_ui.se
           <div>
             <h2 id="folder-title">Choose project folder</h2>
             <p id="folder-current">Loading...</p>
+            <p id="folder-help">Enter folders to browse, then select one as the active project.</p>
           </div>
           <button class="icon-button" id="folder-close" type="button" aria-label="Close">x</button>
         </header>

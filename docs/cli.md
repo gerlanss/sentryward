@@ -15,7 +15,7 @@ El binario es `ward`. Ejecutar `ward` abre una vista compacta en el terminal con
 ## Commands
 
 - `ward` and `ward watch`: open the compact home and chat-style slash-command console; when run inside a project, watch changed files and alert only on new High/Critical findings.
-- `ward ui [path] [--port <port>] [--no-open]`: start the local browser interface on `127.0.0.1` with dashboard, visual tabs, folder picker, findings review, source context, copy buttons, and ignore/restore controls.
+- `ward ui [path] [--port <port>] [--no-open]`: start the local browser interface on `127.0.0.1` with dashboard, explicit scan mode, optional continuous rescan, visual tabs, folder picker, findings review, source context, copy buttons, and ignore/restore controls.
 - `ward scan <path>`: full deterministic scan.
 - `ward init`: create `.sentryward/config.json`, `.sentryward/findings.json`, `.sentryward/cache.json`, and `.sentrywardignore`.
 - `ward status`: show security health and score.
@@ -47,7 +47,9 @@ The browser UI does not use a command composer. It is operated through buttons, 
 - Default watch output should open with a compact home: project, stack, mode, language, Sema state, guard count, root, watch state, and command hints.
 - Default watch mode must expose a real chat-style prompt, not a decorative prompt. It supports `/help`, `/scan`, `/status`, `/findings`, `/explain <findingId>`, `/fix <findingId>`, `/home`, `/panel`, `/settings`, `/lang <en|pt-BR|es>`, `/clear`, and `/quit`.
 - Browser UI must be click-first and must not expose a command input as its main workflow.
+- Browser UI must explain that manual scan is the default visual flow, optional continuous rescan keeps the browser panel fresh, and terminal `ward watch` remains the filesystem event watch flow.
 - Browser UI findings must show exact source context, highlight the affected line, support copy finding, copy code, select all, Ctrl multi-select, ignore, and restore.
+- Browser UI folder selection must distinguish entering a folder from selecting it as the active project.
 - `/settings` must show language, mode, watch, Sema state, project, root, and language commands. `/lang` must update the current session and persist the project preference.
 - Typing `/` in the interactive prompt must show command suggestions, and Tab completion must work for slash commands.
 - Arrow-key history comes from the terminal readline prompt.

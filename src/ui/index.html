@@ -1,0 +1,123 @@
+<!doctype html>
+<!--
+SEMA-GOVERNED: module sentryward.ui
+Description: local browser shell for ward ui; consult contratos/sentryward_ui.sema before changing behavior.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SentryWard UI</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"></div>
+          <div>
+            <strong>Sentry<span>Ward</span></strong>
+            <p>The ward is watching.</p>
+          </div>
+        </div>
+
+        <section class="side-section">
+          <h2>Project</h2>
+          <div class="meta-list">
+            <div><span>Name</span><strong id="project-name">loading</strong></div>
+            <div><span>Stack</span><strong id="project-stack">loading</strong></div>
+            <div><span>Path</span><strong id="project-root">loading</strong></div>
+          </div>
+        </section>
+
+        <section class="side-section">
+          <h2>Status</h2>
+          <div class="status-pill safe" id="watch-state">Local UI</div>
+          <div class="status-pill neutral" id="sema-state">Sema governance</div>
+        </section>
+
+        <section class="side-section">
+          <h2>Settings</h2>
+          <label class="field-label" for="language-select">Language</label>
+          <select id="language-select">
+            <option value="en">English</option>
+            <option value="pt-BR">Portugu&ecirc;s</option>
+            <option value="es">Espa&ntilde;ol</option>
+          </select>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyeline">Local security interface</p>
+            <h1>SentryWard</h1>
+          </div>
+          <div class="top-actions">
+            <button id="scan-button" type="button">Run scan</button>
+            <button id="settings-button" type="button">Settings</button>
+          </div>
+        </header>
+
+        <section class="dashboard-grid" aria-label="Security dashboard">
+          <article class="score-panel">
+            <div class="score-ring" id="score-ring" style="--score: 100">
+              <strong id="score-value">100</strong>
+              <span>/100</span>
+            </div>
+            <div>
+              <h2>Security score</h2>
+              <p id="scan-summary">No scan loaded yet.</p>
+            </div>
+          </article>
+
+          <article class="severity-panel">
+            <h2>Findings</h2>
+            <div class="severity-row critical"><span>Critical</span><strong id="count-critical">0</strong></div>
+            <div class="severity-row high"><span>High</span><strong id="count-high">0</strong></div>
+            <div class="severity-row medium"><span>Medium</span><strong id="count-medium">0</strong></div>
+            <div class="severity-row low"><span>Low</span><strong id="count-low">0</strong></div>
+            <div class="severity-row info"><span>Info</span><strong id="count-info">0</strong></div>
+          </article>
+
+          <article class="timeline-panel">
+            <h2>Activity</h2>
+            <ol id="activity-list">
+              <li>Interface loaded.</li>
+              <li>Type <code>/</code> in the composer to open commands.</li>
+            </ol>
+          </article>
+        </section>
+
+        <section class="findings-layout">
+          <article class="findings-list-panel">
+            <div class="panel-heading">
+              <h2>Findings</h2>
+              <span id="finding-total">0 total</span>
+            </div>
+            <div id="findings-list" class="findings-list empty">Run a scan to populate findings.</div>
+          </article>
+
+          <article class="finding-detail-panel">
+            <div id="finding-detail" class="finding-detail empty">
+              <h2>No finding selected</h2>
+              <p>Select a finding after scanning to inspect impact, recommendation, and code context.</p>
+            </div>
+          </article>
+        </section>
+      </main>
+
+      <section class="composer-shell" aria-label="Command composer">
+        <div class="command-palette" id="command-palette" hidden></div>
+        <div class="composer">
+          <span class="prompt">ward</span>
+          <input id="command-input" type="text" autocomplete="off" spellcheck="false" placeholder="Type / for commands" />
+          <button id="send-command" type="button">Send</button>
+        </div>
+        <div class="chat-log" id="chat-log" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.5
+
+- Added `ward ui`, a local browser interface served on `127.0.0.1`.
+- Added UI dashboard, findings detail view, settings, language switching, and slash-command composer.
+- Made `/` open a visual command palette in the browser input instead of printing suggestions into terminal output.
+- Updated packaging to copy UI assets into `dist/ui`.
+
 ## 0.1.4
 
 - Made `ward` open a cleaner compact home view by default while keeping the full dashboard available through `/panel`.

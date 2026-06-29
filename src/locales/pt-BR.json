@@ -13,13 +13,16 @@
       "patch": "cria arquivo de patch",
       "html": "gera relatório HTML",
       "json": "gera relatório JSON",
-      "url": "URL local de desenvolvimento"
+      "url": "URL local de desenvolvimento",
+      "port": "porta local da interface",
+      "noOpen": "inicia a interface local sem abrir o navegador"
     }
   },
   "commands": {
     "watch": "observa o projeto",
     "init": "inicializa a configuração do SentryWard",
     "scan": "escaneia um projeto local",
+    "ui": "abre a interface visual local",
     "status": "mostra a saúde de segurança atual",
     "findings": "lista achados salvos",
     "explain": "explica um achado",
@@ -229,6 +232,11 @@
   "surface": {
     "remoteBlocked": "Apenas URLs locais de desenvolvimento são permitidas.",
     "localChecked": "URL local verificada: {url}"
+  },
+  "ui": {
+    "started": "Interface SentryWard rodando em {url}",
+    "stop": "Pressione Ctrl+C para parar o servidor local da interface.",
+    "openFailed": "Não foi possível abrir o navegador automaticamente: {message}"
   },
   "sema": {
     "governance": "Governança Sema",

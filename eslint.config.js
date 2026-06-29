@@ -21,5 +21,15 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
       "@typescript-eslint/no-explicit-any": "off"
     }
+  },
+  {
+    files: ["src/ui/**/*.js"],
+    languageOptions: {
+      globals: {
+        document: "readonly",
+        window: "readonly",
+        fetch: "readonly"
+      }
+    }
   }
 );

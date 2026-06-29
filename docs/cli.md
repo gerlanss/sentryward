@@ -2,19 +2,20 @@
 
 ## English
 
-The binary is `ward`. Running `ward` opens a compact terminal home with a slash-command console by default. The full diagnostic panel stays available with `/panel`. Commands must be concise, local-first, deterministic, and useful in normal terminals and CI.
+The binary is `ward`. Running `ward` opens a compact terminal home with a slash-command console by default. Running `ward ui` opens the local visual interface in a browser. The full terminal diagnostic panel stays available with `/panel`. Commands must be concise, local-first, deterministic, and useful in normal terminals and CI.
 
 ## Portugues
 
-O binario e `ward`. Rodar `ward` abre uma home compacta no terminal com console de comandos slash por padrao. O painel diagnostico completo continua disponivel com `/panel`. Os comandos devem ser concisos, local-first, deterministicos e uteis em terminais normais e CI.
+O binario e `ward`. Rodar `ward` abre uma home compacta no terminal com console de comandos slash por padrao. Rodar `ward ui` abre a interface visual local no navegador. O painel diagnostico completo do terminal continua disponivel com `/panel`. Os comandos devem ser concisos, local-first, deterministicos e uteis em terminais normais e CI.
 
 ## Espanol
 
-El binario es `ward`. Ejecutar `ward` abre una vista compacta en el terminal con consola de comandos slash por defecto. El panel diagnostico completo sigue disponible con `/panel`. Los comandos deben ser concisos, local-first, deterministas y utiles en terminales normales y CI.
+El binario es `ward`. Ejecutar `ward` abre una vista compacta en el terminal con consola de comandos slash por defecto. Ejecutar `ward ui` abre la interfaz visual local en el navegador. El panel diagnostico completo del terminal sigue disponible con `/panel`. Los comandos deben ser concisos, local-first, deterministas y utiles en terminales normales y CI.
 
 ## Commands
 
 - `ward` and `ward watch`: open the compact home and chat-style slash-command console; when run inside a project, watch changed files and alert only on new High/Critical findings.
+- `ward ui [path] [--port <port>] [--no-open]`: start the local browser interface on `127.0.0.1` with dashboard, findings, settings, and slash command composer.
 - `ward scan <path>`: full deterministic scan.
 - `ward init`: create `.sentryward/config.json`, `.sentryward/findings.json`, `.sentryward/cache.json`, and `.sentrywardignore`.
 - `ward status`: show security health and score.
@@ -37,6 +38,8 @@ When `ward` starts outside a detected project, such as directly in the Windows u
 
 Interactive slash commands include `/help`, `/scan`, `/status`, `/findings`, `/explain <findingId>`, `/fix <findingId>`, `/home`, `/panel`, `/settings`, `/lang <en|pt-BR|es>`, `/clear`, and `/quit`.
 
+The browser UI command composer follows the same slash-command model. Typing `/` opens a visual command palette above the input; suggestions are not written into terminal output or chat history. The first browser release supports `/help`, `/scan`, `/status`, `/findings`, `/explain <findingId>`, `/fix <findingId>`, `/home`, `/panel`, `/settings`, `/lang <en|pt-BR|es>`, `/clear`, and `/quit`.
+
 ## UX Direction
 
 - Professional, sharp, compact, and visual.
@@ -54,6 +57,7 @@ Interactive slash commands include `/help`, `/scan`, `/status`, `/findings`, `/e
 ## Validation
 
 - `node dist/cli.js --help`
+- `node dist/cli.js ui --no-open --port 7331`
 - `node dist/cli.js init`
 - `node dist/cli.js scan examples/vulnerable-app`
 - `node dist/cli.js scan examples/vulnerable-app --lang pt-BR`

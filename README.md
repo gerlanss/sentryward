@@ -27,7 +27,8 @@ ward scan .
 ## Commands
 
 ```bash
-ward                         # main panel with slash-command console
+ward ui                      # local visual interface with dashboard and command composer
+ward                         # compact terminal home with slash-command console
 ward watch                   # explicit main panel with file watch
 ward scan .                  # full local scan
 ward scan . --contract-check # security scan plus optional Sema governance gaps
@@ -68,6 +69,18 @@ Inside the interactive watch console, use slash commands:
 Typing `/` opens the command menu inside the chat-style input. Press `Tab` to complete a command and `Enter` to run it. The default `ward` view is a compact home with useful status; run `/panel` when you want the full diagnostic dashboard.
 
 If `ward` is opened from the Windows user home or another folder without project markers, it starts in panel mode instead of watching protected system/user folders. Use `/scan <path>` or run `ward` inside a project folder to arm filesystem watch.
+
+## Local Visual Interface
+
+Use `ward ui` when you want the main visual experience instead of a terminal panel:
+
+```bash
+ward ui
+ward ui . --port 7331
+ward ui C:\GitHub\my-app --no-open
+```
+
+The UI is served only on `127.0.0.1` by the local CLI process. It shows project context, Sema complement status, score, findings, settings, and a command composer. Typing `/` opens a command palette above the input; it does not print command suggestions into the terminal history.
 
 ## Language
 

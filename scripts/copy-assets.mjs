@@ -1,0 +1,15 @@
+import { cp, mkdir } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
+await mkdir(resolve(root, "dist", "locales"), { recursive: true });
+await cp(resolve(root, "src", "locales"), resolve(root, "dist", "locales"), {
+  recursive: true,
+});
+
+await mkdir(resolve(root, "dist", "ui"), { recursive: true });
+await cp(resolve(root, "src", "ui"), resolve(root, "dist", "ui"), {
+  recursive: true,
+});

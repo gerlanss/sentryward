@@ -15,18 +15,22 @@ import { runScanCommand } from "./commands/scan.js";
 import { runSemaInitCommand, runSemaStatusCommand, runSemaSyncCommand } from "./commands/sema.js";
 import { runStatusCommand } from "./commands/status.js";
 import { runSurfaceCommand } from "./commands/surface.js";
+import { runUiCommand } from "./commands/ui.js";
 import { runWatchCommand } from "./commands/watch.js";
 import type { Language } from "./types/index.js";
 
-function languageFromArgv(): Language {
+function languageOverrideFromArgv(): Language | undefined {
   const index = process.argv.findIndex((arg) => arg === "--lang");
   const inline = process.argv.find((arg) => arg.startsWith("--lang="));
   return (
     normalizeLanguage(index >= 0 ? process.argv[index + 1] : undefined) ??
     normalizeLanguage(inline?.split("=")[1]) ??
-    normalizeLanguage(process.env.SENTRYWARD_LANG) ??
-    defaultConfig.language
+    normalizeLanguage(process.env.SENTRYWARD_LANG)
   );
+}
+
+function languageFromArgv(): Language {
+  return languageOverrideFromArgv() ?? defaultConfig.language;
 }
 
 const lang = languageFromArgv();
@@ -36,7 +40,7 @@ const program = new Command();
 program
   .name("ward")
   .description(t("cli.description"))
-  .version("0.1.4")
+  .version("0.1.5")
   .option("--lang <language>", t("cli.options.lang"))
   .option("--governed", t("cli.options.governed"))
   .option("--sema", t("cli.options.sema"));
@@ -59,6 +63,22 @@ program
   .command("init")
   .description(t("commands.init"))
   .action(async () => runInitCommand({ lang, t }));
+
+program
+  .command("ui")
+  .description(t("commands.ui"))
+  .argument("[path]", t("commands.path"), ".")
+  .option("--port <port>", t("cli.options.port"))
+  .option("--no-open", t("cli.options.noOpen"))
+  .action(async (path, options) =>
+    runUiCommand({
+      t,
+      lang: languageOverrideFromArgv(),
+      root: path,
+      port: options.port ? Number(options.port) : undefined,
+      open: options.open,
+    }),
+  );
 
 program
   .command("scan")

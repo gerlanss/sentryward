@@ -1,0 +1,99 @@
+module sentryward.ui {
+  docs {
+    resumo: "Interface local SentryWard: ward ui abre painel visual com dashboard, findings, settings e chat de comandos sem enviar codigo para fora."
+  }
+
+  use sentryward.cli
+  use sentryward.scanner
+
+  entity EstadoInterfaceWard {
+    fields {
+      projeto: Texto
+      score: Inteiro
+      findings: Lista
+      url_local: Texto
+      idioma: Texto
+    }
+  }
+
+  task iniciar_interface_local {
+    input {
+      projeto: Texto required
+      porta: Inteiro
+      idioma: Texto
+      abrir_navegador: Booleano
+    }
+    output {
+      estado: EstadoInterfaceWard
+      url: Texto
+      servidorAtivo: Booleano
+    }
+    authz { escopo: cli.local.ui tenant: opcional }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { projeto: interno porta: publico idioma: publico abrir_navegador: publico }
+      output { estado: interno url: publico servidorAtivo: publico }
+    }
+    audit {
+      evento: sentryward.ui.iniciada
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      bind_publico
+      upload_codigo_fonte
+      telemetria_externa
+      scan_url_remota
+      log.segredo
+      retorno.credencial
+    }
+    rules {
+      projeto deve_ser caminho_local
+      porta deve_ser local_ou_auto
+      idioma em [en, pt-BR, es]
+    }
+    effects {
+      evento interface_local criticidade = media
+      consulta arquivos_locais criticidade = media
+      fs.write findings_locais criticidade = media
+      auditoria ui_cli criticidade = baixa
+    }
+    impl { ts: src.commands.ui.runUiCommand }
+    vinculos {
+      arquivo: "src/commands/ui.ts"
+      arquivo: "src/core/uiServer.ts"
+      arquivo: "src/ui/index.html"
+      arquivo: "src/ui/styles.css"
+      arquivo: "src/ui/app.js"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "continuo"
+      retry: "porta_auto"
+      compensacao: "encerrar_servidor"
+      criticidade_operacional: media
+    }
+    guarantees {
+      servidorAtivo == verdadeiro
+      url existe
+      estado existe
+    }
+    tests {
+      caso "abre interface local sem navegador" {
+        given { projeto: "." porta: 0 idioma: "en" abrir_navegador: falso }
+        expect { sucesso: verdadeiro servidorAtivo: verdadeiro url: "127.0.0.1" }
+      }
+      caso "chat slash exibe menu sobre input" {
+        given { projeto: "." porta: 0 idioma: "pt-BR" abrir_navegador: falso }
+        expect { sucesso: verdadeiro estado: "command_palette_overlay" }
+      }
+      caso "scan pela interface atualiza findings" {
+        given { projeto: "examples/vulnerable-app" porta: 0 idioma: "en" abrir_navegador: falso }
+        expect { sucesso: verdadeiro estado: "findings_atualizados" }
+      }
+    }
+  }
+}

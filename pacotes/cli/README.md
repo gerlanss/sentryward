@@ -10,12 +10,16 @@ SentryWard ships as the `sentryward` npm package with the `ward` binary.
 - Zod config validation.
 - Deterministic local guards.
 - Compact terminal dashboard for scan/watch output.
+- Local browser UI served by `ward ui`.
 - Locale files for English, Portuguese Brazil, and Spanish.
 - Vitest coverage and CI workflow.
 
 ## Operational Rules
 
 - Running `ward` starts a compact home with a chat-style slash-command console.
+- Running `ward ui` starts the main visual interface on `127.0.0.1`, opens the browser by default, and keeps all scan actions local.
+- The browser UI shows project status, Sema complement state, score, findings, settings, and a slash-command composer.
+- Typing `/` in the browser composer opens a visual command palette over the input; it must not print suggestions into terminal output or chat history.
 - Scan/watch output should show project context, score, active guards, spotlight findings, code context, and next commands in a compact TUI-style layout.
 - Watch mode must accept slash commands: `/help`, `/scan`, `/status`, `/findings`, `/explain <id>`, `/fix <id>`, `/home`, `/panel`, `/settings`, `/lang <en|pt-BR|es>`, `/clear`, and `/quit`.
 - `/panel` shows the full diagnostic dashboard; `/home` returns to the compact default view.
@@ -35,7 +39,8 @@ SentryWard ships as the `sentryward` npm package with the `ward` binary.
 - `pnpm test`
 - `pnpm lint`
 - `node dist/cli.js --help`
+- `node dist/cli.js ui --no-open --port 7331`
 
 ## Rollback
 
-- Revert packaging changes if `bin.ward`, generated `dist`, locale loading, or smoke commands break.
+- Revert packaging changes if `bin.ward`, generated `dist`, UI asset copying, locale loading, or smoke commands break.

@@ -90,4 +90,56 @@ describe("SentryWard scanner", () => {
       await rm(root, { recursive: true, force: true });
     }
   });
+
+  it("does not report protected admin frontend and signed webhook false positives", async () => {
+    const root = await mkdtemp(resolve(tmpdir(), "sentryward-protected-"));
+    try {
+      await mkdir(resolve(root, "src/pages/admin"), { recursive: true });
+      await mkdir(resolve(root, "src/components/admin"), { recursive: true });
+      await mkdir(resolve(root, "src/components/auth"), { recursive: true });
+      await mkdir(resolve(root, "src/api/webhooks"), { recursive: true });
+      await mkdir(resolve(root, "supabase/migrations"), { recursive: true });
+      await mkdir(resolve(root, "output/playwright"), { recursive: true });
+
+      await writeFile(
+        resolve(root, "src/App.tsx"),
+        'export function App() { return <Route path="/admin/*" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>} />; }',
+        "utf8",
+      );
+      await writeFile(
+        resolve(root, "src/components/auth/ProtectedRoute.tsx"),
+        'export async function ProtectedRoute() { return supabase.rpc("has_role", { role: "admin" }); }',
+        "utf8",
+      );
+      await writeFile(resolve(root, "src/pages/admin/Dashboard.tsx"), "export function Dashboard() { return <main>Admin</main>; }", "utf8");
+      await writeFile(
+        resolve(root, "src/components/admin/AdminLayout.tsx"),
+        'export function AdminLayout() { return <Link to="/admin">Admin</Link>; }',
+        "utf8",
+      );
+      await writeFile(
+        resolve(root, "supabase/migrations/001.sql"),
+        `CREATE POLICY "Admin can update leads" ON public.leads FOR UPDATE USING (has_role(auth.uid(), 'admin'));
+CREATE POLICY "Admin can delete leads" ON public.leads FOR DELETE USING (has_role(auth.uid(), 'admin'));`,
+        "utf8",
+      );
+      await writeFile(
+        resolve(root, "src/api/webhooks/resend-inbound.ts"),
+        'export async function POST(req: Request) { const signature = req.headers.get("svix-signature"); return Response.json({ signature }); }',
+        "utf8",
+      );
+      await writeFile(resolve(root, "relatorio_pentest_externo.md"), "Endpoint de webhook sem verificacao visivel.", "utf8");
+      await writeFile(resolve(root, "output/playwright/sentinela-visual-check.mjs"), "path.join(outputDir, download.suggestedFilename)", "utf8");
+
+      const result = await scanProject({ root, persist: false, lang: "pt-BR" });
+      const ids = new Set(result.findings.map((finding) => finding.id));
+      expect(ids.has("SW-AUTH-014")).toBe(false);
+      expect(ids.has("SW-BROWSER-002")).toBe(false);
+      expect(ids.has("SW-DB-003")).toBe(false);
+      expect(ids.has("SW-WEBHOOK-001")).toBe(false);
+      expect(result.findings.some((finding) => finding.file.startsWith("output/"))).toBe(false);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
 });

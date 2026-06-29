@@ -1,7 +1,7 @@
 // SEMA-GOVERNED: module sentryward.scanner; route guard inspects local API surfaces.
 import type { Finding, Guard } from "../../types/index.js";
 import { createFinding } from "../../core/finding.js";
-import { hasBackendAuth } from "../utils.js";
+import { hasBackendAuth, hasProjectAdminProtection, isFrontendRouteFile } from "../utils.js";
 
 const sensitiveRoute = /(\/api\/admin|\/admin|\/internal|\/debug|\/dev|\/test|\/seed|\/users|\/billing|\/payments|\/delete|\/reset|\/export|\/recalculate)/i;
 const routeFile = /(^|\/)(api|routes|controllers|app|pages)(\/|$)|\.(route|controller)\.(ts|js|py|php)$/i;
@@ -10,6 +10,7 @@ export const routesGuard: Guard = {
   name: "routes",
   run(files, context) {
     const findings: Finding[] = [];
+    const adminProtectedByProject = hasProjectAdminProtection(files);
     for (const file of files) {
       if (!routeFile.test(file.relativePath)) {
         continue;
@@ -17,7 +18,9 @@ export const routesGuard: Guard = {
       if (!sensitiveRoute.test(file.relativePath) && !sensitiveRoute.test(file.content)) {
         continue;
       }
-      if (!hasBackendAuth(file.content)) {
+      const frontendAdminSurface =
+        adminProtectedByProject && isFrontendRouteFile(file.relativePath) && /(^|\/)admin(\/|$)|\/admin/i.test(file.relativePath + "\n" + file.content);
+      if (!frontendAdminSurface && !hasBackendAuth(file.content)) {
         findings.push(
           createFinding(context.t, {
             ruleId: "SW-AUTH-014",

@@ -55,6 +55,47 @@ export function isFrontendFile(path: string): boolean {
     : false;
 }
 
+export function isGeneratedArtifactPath(path: string): boolean {
+  return /(^|\/)(output|outputs|playwright-report|test-results|coverage|dist|build|\.next)(\/|$)/i.test(path);
+}
+
+export function isDocumentationPath(path: string): boolean {
+  return /\.(md|mdx|txt)$/i.test(path);
+}
+
+export function isTestPath(path: string): boolean {
+  return /(^|\/)(__tests__|test|tests|spec)(\/|$)|\.(test|spec)\.(tsx?|jsx?)$/i.test(path);
+}
+
+export function isFrontendRouteFile(path: string): boolean {
+  return (
+    isFrontendFile(path) &&
+    !/(^|\/)(api|server|servers|backend|functions|supabase\/functions)(\/|$)|\.(route|controller)\.(ts|js)$/i.test(path)
+  );
+}
+
+export function hasProjectAdminProtection(files: FileContext[]): boolean {
+  const runtimeFiles = files.filter((file) => !isTestPath(file.relativePath) && !isGeneratedArtifactPath(file.relativePath));
+  const hasProtectedAdminRoute = runtimeFiles.some((file) => {
+    if (!isFrontendRouteFile(file.relativePath)) {
+      return false;
+    }
+    return (
+      /path\s*=\s*["'`]\/admin(?:\/\*)?["'`][\s\S]{0,400}ProtectedRoute/i.test(file.content) ||
+      /ProtectedRoute[\s\S]{0,400}path\s*=\s*["'`]\/admin(?:\/\*)?["'`]/i.test(file.content) ||
+      /\/admin[\s\S]{0,240}<ProtectedRoute/i.test(file.content)
+    );
+  });
+
+  const hasAdminRoleEvidence = runtimeFiles.some((file) =>
+    /has_role\s*\(|is_otimitare_admin\s*\(|requireRole\s*\(\s*["'`]admin["'`]|requireAdmin|isAdmin|role\s*[=:]\s*["'`]admin["'`]/i.test(
+      file.content,
+    ),
+  );
+
+  return hasProtectedAdminRoute && hasAdminRoleEvidence;
+}
+
 export function hasBackendAuth(content: string): boolean {
   return /requireAuth|withAuth|authMiddleware|getServerSession|verifyToken|jwt\.verify|requireRole|isAdmin|authorize|auth\s*\(/i.test(
     content,
@@ -62,7 +103,7 @@ export function hasBackendAuth(content: string): boolean {
 }
 
 export function hasSignatureVerification(content: string): boolean {
-  return /constructEvent|signature|stripe-signature|webhookSecret|verifyWebhook|validateSignature|x-hub-signature|x-signature|mercadopago.*signature/i.test(
+  return /constructEvent|signature|stripe-signature|svix-signature|webhookSecret|verifyWebhook|validateSignature|x-hub-signature|x-signature|mercadopago.*signature|new\s+Webhook\s*\(/i.test(
     content,
   );
 }

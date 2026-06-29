@@ -1,17 +1,29 @@
 // SEMA-GOVERNED: module sentryward.scanner; webhook guard checks signature verification evidence.
 import type { Finding, Guard } from "../../types/index.js";
 import { createFinding } from "../../core/finding.js";
-import { hasSignatureVerification } from "../utils.js";
+import { hasSignatureVerification, isDocumentationPath, isGeneratedArtifactPath, isTestPath } from "../utils.js";
+
+function isExecutableWebhookEndpoint(path: string, content: string): boolean {
+  if (isDocumentationPath(path) || isGeneratedArtifactPath(path) || isTestPath(path)) {
+    return false;
+  }
+  const pathLooksLikeEndpoint =
+    /(^|\/)(api|routes|controllers|server|functions|supabase\/functions)(\/|$)|\.(route|controller)\.(ts|js|py|php)$/i.test(path);
+  const pathNamesWebhook = /webhook|resend-inbound|stripe|svix/i.test(path);
+  const contentLooksLikeHandler =
+    /export\s+(?:async\s+)?function\s+(POST|handler)|app\.post\s*\(|router\.post\s*\(|Deno\.serve\s*\(|serve\s*\(|Request|NextResponse|req\.|res\./i.test(
+      content,
+    );
+
+  return pathNamesWebhook && (pathLooksLikeEndpoint || contentLooksLikeHandler);
+}
 
 export const webhooksGuard: Guard = {
   name: "webhooks",
   run(files, context) {
     const findings: Finding[] = [];
     for (const file of files) {
-      const isWebhook =
-        /webhook/i.test(file.relativePath) ||
-        (/webhook/i.test(file.content) && /(POST|handler|route|req|Request)/i.test(file.content));
-      if (!isWebhook || hasSignatureVerification(file.content)) {
+      if (!isExecutableWebhookEndpoint(file.relativePath, file.content) || hasSignatureVerification(file.content)) {
         continue;
       }
       findings.push(

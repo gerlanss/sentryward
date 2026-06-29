@@ -12,7 +12,7 @@ import { countBySeverity } from "./severity.js";
 import { readScanResult } from "./storage.js";
 import type { Language, ScanResult, Severity, WardConfig } from "../types/index.js";
 
-const UI_VERSION = "0.1.10";
+const UI_VERSION = "0.1.11";
 const DEFAULT_PORT = 7331;
 const HOST = "127.0.0.1";
 const SEMA_TOGGLE_PATHS = new Set(["/api/sema", "/api/sema-governance", "/api/governance/sema"]);

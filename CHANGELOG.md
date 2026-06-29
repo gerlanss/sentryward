@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.11
+
+- Reduce false positives for frontend admin pages and `/admin` links when a central protected route and admin role evidence exist.
+- Treat Supabase policy text separately from real SQL `UPDATE`/`DELETE` statements when checking for missing `WHERE`.
+- Ignore generated output folders by default and limit webhook signature checks to executable webhook endpoints.
+
 ## 0.1.10
 
 - Make folder rows in the visual UI clickable so browsing folders no longer depends on a separate Enter button.

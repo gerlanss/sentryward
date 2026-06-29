@@ -1,12 +1,13 @@
 // SEMA-GOVERNED: module sentryward.scanner; browser exposure guard follows the "browser can see it" model.
 import type { Finding, Guard } from "../../types/index.js";
 import { createFinding } from "../../core/finding.js";
-import { isFrontendFile, scanPatterns } from "../utils.js";
+import { hasProjectAdminProtection, isFrontendFile, scanPatterns } from "../utils.js";
 
 export const browserExposureGuard: Guard = {
   name: "browserExposure",
   run(files, context) {
     const findings: Finding[] = [];
+    const adminProtectedByProject = hasProjectAdminProtection(files);
 
     findings.push(
       ...scanPatterns(files, context, [
@@ -45,7 +46,14 @@ export const browserExposureGuard: Guard = {
             }),
           );
         }
-        if (/["'`](\/api\/admin|\/admin|\/internal|\/debug|\/dev|\/test|\/seed|\/users|\/billing|\/payments|\/delete|\/reset|\/export|\/recalculate)/i.test(line)) {
+        const sensitiveRouteMatch = line.match(
+          /["'`]((?:\/api\/admin|\/admin|\/internal|\/debug|\/dev|\/test|\/seed|\/users|\/billing|\/payments|\/delete|\/reset|\/export|\/recalculate)[^"'`]*)/i,
+        );
+        if (sensitiveRouteMatch) {
+          const route = sensitiveRouteMatch[1] ?? "";
+          if (adminProtectedByProject && /^\/admin(?:\/|$)/i.test(route)) {
+            continue;
+          }
           findings.push(
             createFinding(context.t, {
               ruleId: "SW-BROWSER-002",

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.7
+
+- Fixed browser UI language switching so existing findings are refreshed in the selected language.
+- Restarted the local UI flow around the click-first interface so stale command-composer builds do not remain active.
+- Added regression coverage for localized UI scan refresh.
+
 ## 0.1.6
 
 - Rebuilt `ward ui` as a click-first browser interface without a command composer.

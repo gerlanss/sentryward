@@ -8,6 +8,7 @@ Create and maintain the local SentryWard interface opened by `ward ui`.
 
 - Local-only web interface served from the CLI process.
 - Visual project dashboard, security summary, findings list, settings, folder picker, source context, copy actions, and ignore/restore controls.
+- Language switching refreshes the active scan so finding titles, impact, recommendations, evidence, and details match the selected locale.
 - No external hosting, no source upload, no telemetry, and no remote target scanning.
 - The terminal `ward` workflow remains available for quick CLI usage.
 

@@ -12,7 +12,7 @@ import { countBySeverity } from "./severity.js";
 import { readScanResult } from "./storage.js";
 import type { Language, ScanResult, Severity } from "../types/index.js";
 
-const UI_VERSION = "0.1.6";
+const UI_VERSION = "0.1.7";
 const DEFAULT_PORT = 7331;
 const HOST = "127.0.0.1";
 
@@ -288,7 +288,17 @@ async function handleApi(
       language: normalizedLanguage,
     }));
     state.language = nextConfig.language;
-    writeJson(response, 200, { ok: true, language: state.language, overview: await overview(state.root, state.language) });
+    let refreshedScan = false;
+    if (body.refreshScan === true && (await readScanResult(state.root))) {
+      await scanProject({ target: state.root, storageRoot: state.root, lang: state.language });
+      refreshedScan = true;
+    }
+    writeJson(response, 200, {
+      ok: true,
+      language: state.language,
+      refreshedScan,
+      overview: await overview(state.root, state.language),
+    });
     return;
   }
 

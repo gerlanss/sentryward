@@ -41,6 +41,7 @@ const messages = {
     overviewReady: "Project overview ready.",
     scanning: "Scan running...",
     scanDone: "Scan completed.",
+    findingsRefreshed: "Findings refreshed for the selected language.",
     scanFailed: "Scan failed",
     semaEnabled: "Sema governance enabled",
     semaDisabled: "Sema governance disabled",
@@ -116,6 +117,7 @@ const messages = {
     overviewReady: "Resumo do projeto pronto.",
     scanning: "Scan rodando...",
     scanDone: "Scan conclu\u00eddo.",
+    findingsRefreshed: "Achados atualizados para o idioma selecionado.",
     scanFailed: "Scan falhou",
     semaEnabled: "Governan\u00e7a Sema ativada",
     semaDisabled: "Governan\u00e7a Sema desativada",
@@ -191,6 +193,7 @@ const messages = {
     overviewReady: "Resumen del proyecto listo.",
     scanning: "Scan en ejecuci\u00f3n...",
     scanDone: "Scan completado.",
+    findingsRefreshed: "Hallazgos actualizados para el idioma seleccionado.",
     scanFailed: "Scan fall\u00f3",
     semaEnabled: "Gobernanza Sema activada",
     semaDisabled: "Gobernanza Sema desactivada",
@@ -827,11 +830,27 @@ async function runScan() {
 
 async function changeLanguage(language) {
   if (!languages.includes(language)) return;
-  const data = await requestJson("/api/language", { method: "POST", body: JSON.stringify({ language }) });
-  state.overview = data.overview;
-  state.language = data.language;
-  toast(t("languageChanged"));
-  renderOverview();
+  const hadScan = Boolean(currentScan());
+  elements.languageSelect.disabled = true;
+  try {
+    const data = await requestJson("/api/language", {
+      method: "POST",
+      body: JSON.stringify({ language, refreshScan: hadScan }),
+    });
+    state.overview = data.overview;
+    state.language = data.language;
+    state.findings = Array.isArray(state.overview.scan?.findings) ? state.overview.scan.findings : [];
+    state.selectedIds = new Set([...state.selectedIds].filter((key) => state.findings.some((finding) => findingKey(finding) === key)));
+    if (data.refreshedScan) {
+      addActivity(t("findingsRefreshed"));
+    }
+    toast(t("languageChanged"));
+    renderOverview();
+  } catch (error) {
+    toast(`${t("scanFailed")}: ${error.message}`);
+  } finally {
+    elements.languageSelect.disabled = false;
+  }
 }
 
 function showFolderError(message) {

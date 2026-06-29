@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4
+
+- Made `ward` open a cleaner compact home view by default while keeping the full dashboard available through `/panel`.
+- Added `/settings`, `/home`, and `/lang <en|pt-BR|es>` to the interactive slash console.
+- Persisted language changes to `.sentryward/config.json` and updated active watch messages for the current session.
+
 ## 0.1.3
 
 - Added a chat-style command input to the watch panel.

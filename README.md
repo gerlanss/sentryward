@@ -58,11 +58,14 @@ Inside the interactive watch console, use slash commands:
 /findings
 /explain SW-AUTH-014
 /fix SW-AUTH-014
+/home
 /panel
+/settings
+/lang pt-BR
 /quit
 ```
 
-Typing `/` opens the command menu inside the chat-style input. Press `Tab` to complete a command and `Enter` to run it.
+Typing `/` opens the command menu inside the chat-style input. Press `Tab` to complete a command and `Enter` to run it. The default `ward` view is a compact home with useful status; run `/panel` when you want the full diagnostic dashboard.
 
 If `ward` is opened from the Windows user home or another folder without project markers, it starts in panel mode instead of watching protected system/user folders. Use `/scan <path>` or run `ward` inside a project folder to arm filesystem watch.
 
@@ -75,6 +78,8 @@ ward scan examples/vulnerable-app --lang pt-BR
 ward scan examples/vulnerable-app --lang es
 SENTRYWARD_LANG=pt-BR ward status
 ```
+
+Inside the interactive console, use `/settings` to see preferences and `/lang en`, `/lang pt-BR`, or `/lang es` to change and save the project language.
 
 ## Architecture
 

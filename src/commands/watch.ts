@@ -5,12 +5,16 @@ import { emitKeypressEvents } from "node:readline";
 import { createInterface } from "node:readline/promises";
 import pc from "picocolors";
 import type { Language, Translator } from "../types/index.js";
+import { updateConfig } from "../core/config.js";
+import { loadTranslator, normalizeLanguage } from "../core/i18n.js";
 import {
   printScanDashboard,
   printWatchChatInput,
   printWatchCommandSuggestions,
   printWatchConsoleHelp,
+  printWatchHome,
   printWatchIntro,
+  printWatchSettings,
   type WatchCommandSuggestion,
 } from "../core/logger.js";
 import { detectProject } from "../core/projectDetector.js";
@@ -42,10 +46,15 @@ const SLASH_COMMANDS: SlashCommandDefinition[] = [
   { command: "/findings", usage: "/findings", descriptionKey: "console.suggest.findings" },
   { command: "/explain", usage: "/explain <id>", descriptionKey: "console.suggest.explain" },
   { command: "/fix", usage: "/fix <id>", descriptionKey: "console.suggest.fix" },
+  { command: "/home", usage: "/home", descriptionKey: "console.suggest.home" },
   { command: "/panel", usage: "/panel", descriptionKey: "console.suggest.panel" },
+  { command: "/settings", usage: "/settings", descriptionKey: "console.suggest.settings" },
+  { command: "/lang", usage: "/lang <en|pt-BR|es>", descriptionKey: "console.suggest.lang" },
   { command: "/clear", usage: "/clear", descriptionKey: "console.suggest.clear" },
   { command: "/quit", usage: "/quit", descriptionKey: "console.suggest.quit" },
 ];
+
+const LANG_COMPLETIONS: Language[] = ["en", "pt-BR", "es"];
 
 function splitInput(raw: string): { command: string; args: string[] } {
   const parts = raw.trim().slice(1).split(/\s+/).filter(Boolean);
@@ -69,6 +78,13 @@ function completeSlashCommand(line: string): [string[], string] {
   if (!line.startsWith("/")) {
     return [[], line];
   }
+  if (line.startsWith("/lang ")) {
+    const filter = line.slice("/lang ".length).trim().toLowerCase();
+    const hits = LANG_COMPLETIONS.filter((language) => language.toLowerCase().startsWith(filter)).map(
+      (language) => `/lang ${language}`,
+    );
+    return [hits.length > 0 ? hits : LANG_COMPLETIONS.map((language) => `/lang ${language}`), line];
+  }
   const filter = slashFilter(line);
   const hits = SLASH_COMMANDS.filter((command) => command.command.slice(1).startsWith(filter)).map((command) => command.command);
   return [hits.length > 0 ? hits : SLASH_COMMANDS.map((command) => command.command), line];
@@ -82,6 +98,17 @@ function printSlashMenu(t: Translator, filter = ""): void {
   printWatchCommandSuggestions(t, matchingSlashCommands(t, filter), filter);
 }
 
+async function renderHome(root: string, options: WatchCommandOptions, watcher: WatchSession): Promise<void> {
+  const project = await detectProject(root);
+  printWatchHome(options.t, project, {
+    sema: options.sema,
+    governed: options.governed,
+    watchEnabled: watcher.watchEnabled,
+    root,
+    language: options.lang,
+  });
+}
+
 async function renderPanel(root: string, options: WatchCommandOptions, watcher: WatchSession): Promise<void> {
   const project = await detectProject(root);
   printWatchIntro(options.t, project, {
@@ -89,7 +116,44 @@ async function renderPanel(root: string, options: WatchCommandOptions, watcher: 
     governed: options.governed,
     watchEnabled: watcher.watchEnabled,
     root,
+    language: options.lang,
   });
+}
+
+async function renderSettings(root: string, options: WatchCommandOptions, watcher: WatchSession): Promise<void> {
+  const project = await detectProject(root);
+  printWatchSettings(options.t, project, {
+    sema: options.sema,
+    governed: options.governed,
+    watchEnabled: watcher.watchEnabled,
+    root,
+    language: options.lang,
+  });
+}
+
+async function changeLanguage(
+  root: string,
+  requested: string | undefined,
+  options: WatchCommandOptions,
+  watcher: WatchSession,
+): Promise<void> {
+  if (!requested) {
+    await renderSettings(root, options, watcher);
+    return;
+  }
+
+  const language = normalizeLanguage(requested);
+  if (!language) {
+    console.log(pc.yellow(options.t("settings.invalidLanguage", { language: requested })));
+    return;
+  }
+
+  await updateConfig(root, (config) => ({ ...config, language }));
+  options.lang = language;
+  options.t = loadTranslator(language);
+  watcher.setLanguage(language);
+  console.log(pc.green(options.t("settings.languageChanged", { language })));
+  await renderHome(root, options, watcher);
 }
 
 async function runSlashCommand(
@@ -119,9 +183,20 @@ async function runSlashCommand(
     case "?":
       printWatchConsoleHelp(options.t);
       return true;
+    case "home":
+      await renderHome(root, options, watcher);
+      return true;
     case "panel":
     case "dashboard":
       await renderPanel(root, options, watcher);
+      return true;
+    case "settings":
+    case "config":
+      await renderSettings(root, options, watcher);
+      return true;
+    case "lang":
+    case "language":
+      await changeLanguage(root, args[0], options, watcher);
       return true;
     case "scan": {
       const target = resolve(root, args[0] ?? ".");
@@ -168,7 +243,7 @@ async function runSlashCommand(
       return true;
     case "clear":
       console.clear();
-      await renderPanel(root, options, watcher);
+      await renderHome(root, options, watcher);
       return true;
     case "quit":
     case "exit":
@@ -238,6 +313,7 @@ async function openConsole(root: string, options: WatchCommandOptions, watcher: 
       const message = error instanceof Error ? error.message : String(error);
       console.error(pc.red(message));
     }
+    rl.setPrompt(pc.green(`${options.t("console.prompt")} `));
     rl.prompt();
   }
 

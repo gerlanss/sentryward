@@ -5,7 +5,7 @@ import chokidar from "chokidar";
 import pc from "picocolors";
 import { loadConfig, resolveLanguage } from "./config.js";
 import { loadTranslator } from "./i18n.js";
-import { printScanDashboard, printWatchIntro } from "./logger.js";
+import { printScanDashboard, printWatchHome } from "./logger.js";
 import { detectProject } from "./projectDetector.js";
 import { severityAtLeast } from "./severity.js";
 import { scanProject } from "./scanner.js";
@@ -13,6 +13,7 @@ import type { Language, ProjectInfo } from "../types/index.js";
 
 export interface WatchSession {
   watchEnabled: boolean;
+  setLanguage(language: Language): void;
   close(): Promise<void>;
 }
 
@@ -94,18 +95,22 @@ function watchErrorPath(error: unknown): string {
 export async function startWatcher(rootInput: string, options: { sema?: boolean; governed?: boolean; lang?: Language } = {}) {
   const root = resolve(rootInput);
   const config = await loadConfig(root);
-  const lang = resolveLanguage(config, options.lang);
-  const t = loadTranslator(lang);
+  let activeLang = resolveLanguage(config, options.lang);
+  let activeT = loadTranslator(activeLang);
   const project = await detectProject(root);
   const watchEnabled = shouldStartFilesystemWatch(root, project, config.watch.enabled);
   const seen = new Set<string>();
 
   console.log(pc.green(`$ ward`));
-  printWatchIntro(t, project, { ...options, watchEnabled, root });
+  printWatchHome(activeT, project, { ...options, watchEnabled, root, language: activeLang });
 
   if (!watchEnabled) {
     return {
       watchEnabled,
+      setLanguage(language: Language) {
+        activeLang = language;
+        activeT = loadTranslator(language);
+      },
       async close() {
         await Promise.resolve();
       },
@@ -129,7 +134,7 @@ export async function startWatcher(rootInput: string, options: { sema?: boolean;
     const result = await scanProject({
       root,
       changedFiles: files,
-      lang,
+      lang: activeLang,
       contractCheck: Boolean(options.sema || options.governed),
     });
     if (closed) return;
@@ -140,10 +145,10 @@ export async function startWatcher(rootInput: string, options: { sema?: boolean;
       seen.add(finding.fingerprint);
     }
     if (newAlerts.length === 0) {
-      console.log(pc.green(t("watch.noNewIssues")));
+      console.log(pc.green(activeT("watch.noNewIssues")));
       return;
     }
-    printScanDashboard(t, { ...result, findings: newAlerts });
+    printScanDashboard(activeT, { ...result, findings: newAlerts });
   }
 
   watcher.on("all", (_event, filePath) => {
@@ -163,11 +168,15 @@ export async function startWatcher(rootInput: string, options: { sema?: boolean;
     const key = `${code}:${path}`;
     if (warnedWatchErrors.has(key)) return;
     warnedWatchErrors.add(key);
-    console.log(pc.yellow(t("watch.permissionSkipped", { code, path })));
+    console.log(pc.yellow(activeT("watch.permissionSkipped", { code, path })));
   });
 
   return {
     watchEnabled,
+    setLanguage(language: Language) {
+      activeLang = language;
+      activeT = loadTranslator(language);
+    },
     async close() {
       closed = true;
       if (timer) clearTimeout(timer);

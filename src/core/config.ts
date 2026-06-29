@@ -113,14 +113,24 @@ export async function loadConfig(root: string): Promise<WardConfig> {
   });
 }
 
+export async function writeConfig(root: string, config: WardConfig): Promise<void> {
+  const dir = resolve(root, ".sentryward");
+  await mkdir(dir, { recursive: true });
+  await writeFile(configPath(root), `${JSON.stringify(config, null, 2)}\n`, "utf8");
+}
+
+export async function updateConfig(root: string, update: (config: WardConfig) => WardConfig): Promise<WardConfig> {
+  const next = update(await loadConfig(root));
+  await writeConfig(root, next);
+  return next;
+}
+
 export async function writeDefaultConfig(root: string, language: Language): Promise<WardConfig> {
   const config: WardConfig = {
     ...defaultConfig,
     language,
   };
-  const dir = resolve(root, ".sentryward");
-  await mkdir(dir, { recursive: true });
-  await writeFile(configPath(root), `${JSON.stringify(config, null, 2)}\n`, "utf8");
+  await writeConfig(root, config);
   return config;
 }
 

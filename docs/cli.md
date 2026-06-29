@@ -2,19 +2,19 @@
 
 ## English
 
-The binary is `ward`. Running `ward` opens the main terminal panel with a slash-command console by default. Commands must be concise, local-first, deterministic, and useful in normal terminals and CI.
+The binary is `ward`. Running `ward` opens a compact terminal home with a slash-command console by default. The full diagnostic panel stays available with `/panel`. Commands must be concise, local-first, deterministic, and useful in normal terminals and CI.
 
 ## Portugues
 
-O binario e `ward`. Rodar `ward` abre o painel principal do terminal com console de comandos slash por padrao. Os comandos devem ser concisos, local-first, deterministicos e uteis em terminais normais e CI.
+O binario e `ward`. Rodar `ward` abre uma home compacta no terminal com console de comandos slash por padrao. O painel diagnostico completo continua disponivel com `/panel`. Os comandos devem ser concisos, local-first, deterministicos e uteis em terminais normais e CI.
 
 ## Espanol
 
-El binario es `ward`. Ejecutar `ward` abre el panel principal del terminal con consola de comandos slash por defecto. Los comandos deben ser concisos, local-first, deterministas y utiles en terminales normales y CI.
+El binario es `ward`. Ejecutar `ward` abre una vista compacta en el terminal con consola de comandos slash por defecto. El panel diagnostico completo sigue disponible con `/panel`. Los comandos deben ser concisos, local-first, deterministas y utiles en terminales normales y CI.
 
 ## Commands
 
-- `ward` and `ward watch`: open the main panel and chat-style slash-command console; when run inside a project, watch changed files and alert only on new High/Critical findings.
+- `ward` and `ward watch`: open the compact home and chat-style slash-command console; when run inside a project, watch changed files and alert only on new High/Critical findings.
 - `ward scan <path>`: full deterministic scan.
 - `ward init`: create `.sentryward/config.json`, `.sentryward/findings.json`, `.sentryward/cache.json`, and `.sentrywardignore`.
 - `ward status`: show security health and score.
@@ -35,11 +35,15 @@ El binario es `ward`. Ejecutar `ward` abre el panel principal del terminal con c
 
 When `ward` starts outside a detected project, such as directly in the Windows user home, it stays in panel mode and does not try to watch protected system/user folders. Use `/scan <path>` or run `ward` from the project folder to arm watch mode.
 
+Interactive slash commands include `/help`, `/scan`, `/status`, `/findings`, `/explain <findingId>`, `/fix <findingId>`, `/home`, `/panel`, `/settings`, `/lang <en|pt-BR|es>`, `/clear`, and `/quit`.
+
 ## UX Direction
 
 - Professional, sharp, compact, and visual.
-- Default scan/watch output should feel like a terminal dashboard: project panel, security score, guard status, spotlight finding card, code context, command hints, and compact finding summary.
-- Default watch mode must expose a real chat-style prompt, not a decorative prompt. It supports `/help`, `/scan`, `/status`, `/findings`, `/explain <findingId>`, `/fix <findingId>`, `/panel`, `/clear`, and `/quit`.
+- Default scan output should feel like a terminal dashboard: project panel, security score, guard status, spotlight finding card, code context, command hints, and compact finding summary.
+- Default watch output should open with a compact home: project, stack, mode, language, Sema state, guard count, root, watch state, and command hints.
+- Default watch mode must expose a real chat-style prompt, not a decorative prompt. It supports `/help`, `/scan`, `/status`, `/findings`, `/explain <findingId>`, `/fix <findingId>`, `/home`, `/panel`, `/settings`, `/lang <en|pt-BR|es>`, `/clear`, and `/quit`.
+- `/settings` must show language, mode, watch, Sema state, project, root, and language commands. `/lang` must update the current session and persist the project preference.
 - Typing `/` in the interactive prompt must show command suggestions, and Tab completion must work for slash commands.
 - Arrow-key history comes from the terminal readline prompt.
 - Use color, borders, and symbols only to improve status hierarchy and scanability.

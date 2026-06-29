@@ -6,7 +6,7 @@ import pc from "picocolors";
 import type { Finding, FindingCategory, ProjectInfo, ScanResult, SemaGateResult, Severity, Translator } from "../types/index.js";
 import { countBySeverity, severityRank } from "./severity.js";
 
-const VERSION = "v0.1.3";
+const VERSION = "v0.1.4";
 const ANSI_PATTERN = new RegExp(String.raw`\x1B\[[0-?]*[ -/]*[@-~]`, "g");
 const SEVERITIES: Severity[] = ["critical", "high", "medium", "low", "info"];
 const CATEGORY_ORDER: FindingCategory[] = [
@@ -33,11 +33,16 @@ interface WatchIntroOptions {
   governed?: boolean;
   watchEnabled?: boolean;
   root?: string;
+  language?: string;
 }
 
 export interface WatchCommandSuggestion {
   usage: string;
   description: string;
+}
+
+export interface WatchSettingsOptions extends WatchIntroOptions {
+  language: string;
 }
 
 function visibleLength(value: string): number {
@@ -306,6 +311,23 @@ function watchGuardLines(t: Translator, maxLines: number): string[] {
   return lines;
 }
 
+function watchMode(options: WatchIntroOptions): string {
+  const watchEnabled = options.watchEnabled ?? true;
+  if (options.sema || options.governed) {
+    return watchEnabled ? "watching + sema" : "panel + sema";
+  }
+  return watchEnabled ? "watching" : "panel";
+}
+
+function semaState(t: Translator, options: WatchIntroOptions): string {
+  return options.sema || options.governed ? pc.green(t("common.enabled")) : pc.gray(t("common.disabled"));
+}
+
+function watchState(t: Translator, options: WatchIntroOptions): string {
+  const watchEnabled = options.watchEnabled ?? true;
+  return watchEnabled ? pc.green(t("watch.panelArmed")) : pc.yellow(t("watch.panelPaused"));
+}
+
 function buildWatchSidebar(t: Translator, project: ProjectInfo, width: number, mode: string, watchEnabled: boolean): string {
   const content = [
     pc.magenta("       ◆"),
@@ -360,10 +382,62 @@ function buildWatchCommandBar(t: Translator, width: number): string {
   return boxed(fitAnsi(t("console.commandBar"), width - 4), width, "gray");
 }
 
+export function printWatchHome(t: Translator, project: ProjectInfo, options: WatchSettingsOptions): void {
+  const width = terminalWidth();
+  const mode = watchMode(options);
+  const valueWidth = Math.max(12, width - 33);
+  const content = [
+    `${pc.magenta("◆ ◇ ◎ ◇ ◆")}   ${pc.bold("Sentry")}${pc.magenta(pc.bold("Ward"))} ${pc.gray(VERSION)}`,
+    pc.magenta(t("tagline")),
+    "",
+    `${pc.green("✓")} ${padAnsi(t("dashboard.projectDetected"), 20)} ${truncatePlain(project.name, valueWidth)}`,
+    `${pc.green("✓")} ${padAnsi(t("dashboard.stackDetected"), 20)} ${formatStack(project.stack, valueWidth)}`,
+    `${pc.gray("◎")} ${padAnsi(t("dashboard.guardMode"), 20)} ${pc.green(mode)}`,
+    `${pc.gray("◇")} ${padAnsi(t("settings.language"), 20)} ${options.language}`,
+    `${pc.gray("◇")} ${padAnsi(t("sema.governance"), 20)} ${semaState(t, options)}`,
+    `${pc.gray("□")} ${padAnsi(t("dashboard.guardsActive"), 20)} ${CATEGORY_ORDER.length}`,
+    `${pc.gray("□")} ${padAnsi(t("settings.root"), 20)} ${truncatePlain(options.root ?? project.root, valueWidth)}`,
+    "",
+    `${pc.magenta(t("watch.panelTitle"))} ${pc.gray(new Date().toLocaleTimeString())}`,
+    watchState(t, options),
+    pc.gray(t("watch.homeHint")),
+  ].join("\n");
+
+  console.log(boxed(content, width, "magenta"));
+  console.log(buildWatchCommandBar(t, width));
+}
+
+export function printWatchSettings(t: Translator, project: ProjectInfo, options: WatchSettingsOptions): void {
+  const width = terminalWidth();
+  const valueWidth = Math.max(12, width - 30);
+  const content = [
+    pc.magenta(t("settings.title")),
+    "",
+    `${padAnsi(t("settings.language"), 18)} ${pc.green(options.language)}`,
+    `${padAnsi(t("settings.mode"), 18)} ${pc.green(watchMode(options))}`,
+    `${padAnsi(t("settings.watch"), 18)} ${watchState(t, options)}`,
+    `${padAnsi(t("sema.governance"), 18)} ${semaState(t, options)}`,
+    `${padAnsi(t("settings.project"), 18)} ${truncatePlain(project.name, valueWidth)}`,
+    `${padAnsi(t("settings.root"), 18)} ${truncatePlain(options.root ?? project.root, valueWidth)}`,
+    "",
+    pc.magenta(t("settings.languagePicker")),
+    `${pc.green("/lang en")}       ${t("settings.languageEn")}`,
+    `${pc.green("/lang pt-BR")}    ${t("settings.languagePt")}`,
+    `${pc.green("/lang es")}       ${t("settings.languageEs")}`,
+    "",
+    pc.magenta(t("settings.commands")),
+    `${pc.green("/home")}          ${t("console.suggest.home")}`,
+    `${pc.green("/panel")}         ${t("console.suggest.panel")}`,
+    `${pc.green("/scan .")}        ${t("console.suggest.scan")}`,
+  ].join("\n");
+
+  console.log(boxed(content, width, "gray"));
+}
+
 export function printWatchIntro(t: Translator, project: ProjectInfo, options: WatchIntroOptions = {}): void {
   const width = terminalWidth();
   const watchEnabled = options.watchEnabled ?? true;
-  const mode = options.sema || options.governed ? (watchEnabled ? "watching + sema" : "panel + sema") : watchEnabled ? "watching" : "panel";
+  const mode = watchMode(options);
   const result: ScanResult = {
     project,
     findings: [],
@@ -374,21 +448,14 @@ export function printWatchIntro(t: Translator, project: ProjectInfo, options: Wa
   const leftWidth = width >= 112 ? 31 : width;
   const rightWidth = width >= 112 ? width - leftWidth - 2 : width;
   const valueWidth = Math.max(10, rightWidth - 32);
-  const semaEnabled = options.sema || options.governed;
   const main = [
     buildHero(t, result, rightWidth, mode),
       boxed(
         [
-          `${pc.green("✓")} ${padAnsi(t("dashboard.projectDetected"), 18)} ${truncatePlain(project.name, valueWidth)}`,
-          `${pc.green("✓")} ${padAnsi(t("dashboard.stackDetected"), 18)} ${formatStack(project.stack, valueWidth)}`,
-          `${watchEnabled ? pc.gray("◉") : pc.yellow("◉")} ${padAnsi(t("dashboard.guardMode"), 18)} ${
-            watchEnabled ? pc.green(mode) : pc.yellow(mode)
-          }`,
           `${pc.gray("◷")} ${padAnsi(t("dashboard.started"), 18)} ${t("dashboard.justNow")}`,
-          `${pc.gray("◇")} ${padAnsi(t("sema.governance"), 18)} ${
-            semaEnabled ? pc.green(t("common.enabled")) : pc.gray(t("common.disabled"))
-          }`,
-          `${pc.gray("▣")} ${padAnsi(t("summary.project"), 18)} ${truncatePlain(options.root ?? project.root, valueWidth)}`,
+          `${pc.gray("◇")} ${padAnsi(t("settings.language"), 18)} ${options.language ?? "en"}`,
+          `${pc.gray("◇")} ${padAnsi(t("sema.governance"), 18)} ${semaState(t, options)}`,
+          `${pc.gray("▣")} ${padAnsi(t("settings.root"), 18)} ${truncatePlain(options.root ?? project.root, valueWidth)}`,
         ].join("\n"),
         rightWidth,
         "gray",
@@ -416,6 +483,9 @@ export function printWatchConsoleHelp(t: Translator): void {
     t("console.helpFindings"),
     t("console.helpExplain"),
     t("console.helpFix"),
+    t("console.helpSettings"),
+    t("console.helpLang"),
+    t("console.helpHome"),
     t("console.helpPanel"),
     t("console.helpClear"),
     t("console.helpQuit"),

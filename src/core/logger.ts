@@ -6,7 +6,7 @@ import pc from "picocolors";
 import type { Finding, FindingCategory, ProjectInfo, ScanResult, SemaGateResult, Severity, Translator } from "../types/index.js";
 import { countBySeverity, severityRank } from "./severity.js";
 
-const VERSION = "v0.1.2";
+const VERSION = "v0.1.3";
 const ANSI_PATTERN = new RegExp(String.raw`\x1B\[[0-?]*[ -/]*[@-~]`, "g");
 const SEVERITIES: Severity[] = ["critical", "high", "medium", "low", "info"];
 const CATEGORY_ORDER: FindingCategory[] = [
@@ -33,6 +33,11 @@ interface WatchIntroOptions {
   governed?: boolean;
   watchEnabled?: boolean;
   root?: string;
+}
+
+export interface WatchCommandSuggestion {
+  usage: string;
+  description: string;
 }
 
 function visibleLength(value: string): number {
@@ -343,6 +348,7 @@ function buildWatchConsoleCard(t: Translator, width: number): string {
   const content = [
     pc.magenta(t("console.ready")),
     t("console.readyBody"),
+    t("console.chatHint"),
     t("console.scanHint"),
     t("console.panelHint"),
     t("console.historyHint"),
@@ -413,6 +419,25 @@ export function printWatchConsoleHelp(t: Translator): void {
     t("console.helpPanel"),
     t("console.helpClear"),
     t("console.helpQuit"),
+  ];
+  console.log(boxed(lines.join("\n"), width, "gray"));
+}
+
+export function printWatchChatInput(t: Translator): void {
+  const width = terminalWidth();
+  console.log(boxed([pc.magenta(t("console.chatTitle")), t("console.chatBody")].join("\n"), width, "magenta"));
+}
+
+export function printWatchCommandSuggestions(t: Translator, commands: WatchCommandSuggestion[], filter = ""): void {
+  const width = terminalWidth();
+  const inner = Math.max(40, width - 4);
+  const usageWidth = Math.min(24, Math.max(12, Math.floor(inner * 0.28)));
+  const visibleCommands = commands.length > 0 ? commands : [{ usage: "/", description: t("console.noCommandMatch") }];
+  const lines = [
+    `${pc.magenta(t("console.suggestTitle"))}${filter ? pc.gray(` /${filter}`) : ""}`,
+    pc.gray(t("console.suggestHint")),
+    "",
+    ...visibleCommands.map((command) => `${pc.green(padAnsi(command.usage, usageWidth))} ${truncatePlain(command.description, inner - usageWidth - 1)}`),
   ];
   console.log(boxed(lines.join("\n"), width, "gray"));
 }

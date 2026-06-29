@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+- Added a chat-style command input to the watch panel.
+- Added slash-command suggestions when typing or submitting `/`.
+- Added Tab completion for interactive slash commands.
+
 ## 0.1.2
 
 - Made `ward` open the main terminal panel by default with slash-command hints.

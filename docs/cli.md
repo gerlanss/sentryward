@@ -14,7 +14,7 @@ El binario es `ward`. Ejecutar `ward` abre el panel principal del terminal con c
 
 ## Commands
 
-- `ward` and `ward watch`: open the main panel and slash-command console; when run inside a project, watch changed files and alert only on new High/Critical findings.
+- `ward` and `ward watch`: open the main panel and chat-style slash-command console; when run inside a project, watch changed files and alert only on new High/Critical findings.
 - `ward scan <path>`: full deterministic scan.
 - `ward init`: create `.sentryward/config.json`, `.sentryward/findings.json`, `.sentryward/cache.json`, and `.sentrywardignore`.
 - `ward status`: show security health and score.
@@ -39,7 +39,8 @@ When `ward` starts outside a detected project, such as directly in the Windows u
 
 - Professional, sharp, compact, and visual.
 - Default scan/watch output should feel like a terminal dashboard: project panel, security score, guard status, spotlight finding card, code context, command hints, and compact finding summary.
-- Default watch mode must expose a real prompt, not a decorative prompt. It supports `/help`, `/scan`, `/status`, `/findings`, `/explain <findingId>`, `/fix <findingId>`, `/panel`, `/clear`, and `/quit`.
+- Default watch mode must expose a real chat-style prompt, not a decorative prompt. It supports `/help`, `/scan`, `/status`, `/findings`, `/explain <findingId>`, `/fix <findingId>`, `/panel`, `/clear`, and `/quit`.
+- Typing `/` in the interactive prompt must show command suggestions, and Tab completion must work for slash commands.
 - Arrow-key history comes from the terminal readline prompt.
 - Use color, borders, and symbols only to improve status hierarchy and scanability.
 - No chatbot-style chatter.

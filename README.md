@@ -51,6 +51,7 @@ ward sema sync
 Inside the interactive watch console, use slash commands:
 
 ```bash
+/
 /help
 /scan .
 /status
@@ -60,6 +61,8 @@ Inside the interactive watch console, use slash commands:
 /panel
 /quit
 ```
+
+Typing `/` opens the command menu inside the chat-style input. Press `Tab` to complete a command and `Enter` to run it.
 
 If `ward` is opened from the Windows user home or another folder without project markers, it starts in panel mode instead of watching protected system/user folders. Use `/scan <path>` or run `ward` inside a project folder to arm filesystem watch.
 

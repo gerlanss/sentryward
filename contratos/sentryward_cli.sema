@@ -150,7 +150,7 @@ module sentryward.cli {
       criticidade_operacional: media
     }
     guarantees {
-      status em [watching, panel, console_interativo_slash]
+      status em [watching, panel, console_interativo_slash, chat_input_slash]
       findingsPersistidos existe
     }
     tests {
@@ -161,6 +161,10 @@ module sentryward.cli {
       caso "home sem marcadores abre painel" {
         given { projeto: "home_sem_projeto" threshold: "high" }
         expect { sucesso: verdadeiro status: "panel" }
+      }
+      caso "barra exibe comandos slash" {
+        given { projeto: "." threshold: "high" }
+        expect { sucesso: verdadeiro status: "chat_input_slash" }
       }
     }
   }

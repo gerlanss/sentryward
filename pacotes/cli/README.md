@@ -15,10 +15,10 @@ SentryWard ships as the `sentryward` npm package with the `ward` binary.
 
 ## Operational Rules
 
-- Running `ward` starts the interactive watch console.
+- Running `ward` starts the main panel with a chat-style slash-command console.
 - Scan/watch output should show project context, score, active guards, spotlight findings, code context, and next commands in a compact TUI-style layout.
-- Watch mode must accept slash commands: `/help`, `/scan`, `/status`, `/findings`, `/explain <id>`, `/fix <id>`, `/clear`, and `/quit`.
-- The prompt is real terminal input with arrow-key command history.
+- Watch mode must accept slash commands: `/help`, `/scan`, `/status`, `/findings`, `/explain <id>`, `/fix <id>`, `/panel`, `/clear`, and `/quit`.
+- The prompt is real terminal input with arrow-key command history, `/` command suggestions, and Tab completion.
 - No external AI calls in the MVP.
 - No telemetry.
 - No source upload.

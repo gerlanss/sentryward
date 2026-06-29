@@ -45,6 +45,12 @@ const messages = {
     scanFailed: "Scan failed",
     semaEnabled: "Sema governance enabled",
     semaDisabled: "Sema governance disabled",
+    semaEnableAction: "Enable Sema",
+    semaDisableAction: "Disable Sema",
+    semaToggleFailed: "Could not update Sema governance",
+    governanceTitle: "Sema governance",
+    contractCheckActive: "Sema contract checks will run with each scan.",
+    contractCheckInactive: "Scans run without Sema contract checks until you enable governance.",
     ignoredCount: "{count} ignored",
     noSelection: "No finding selected",
     selectFinding: "Select a finding to inspect impact, recommendation, and exact code context.",
@@ -77,7 +83,7 @@ const messages = {
     folderEmpty: "No child folders here.",
     languageCopy: "Change the local UI language.",
     projectCopy: "Switch the active local project without restarting SentryWard.",
-    governanceCopy: "Sema remains optional and appears when the project opts into governance.",
+    governanceCopy: "Sema remains optional. Turn it on when this project wants semantic contract governance.",
     languageChanged: "Language changed and saved.",
   },
   "pt-BR": {
@@ -121,6 +127,12 @@ const messages = {
     scanFailed: "Scan falhou",
     semaEnabled: "Governan\u00e7a Sema ativada",
     semaDisabled: "Governan\u00e7a Sema desativada",
+    semaEnableAction: "Ativar Sema",
+    semaDisableAction: "Desativar Sema",
+    semaToggleFailed: "N\u00e3o foi poss\u00edvel atualizar a governan\u00e7a Sema",
+    governanceTitle: "Governan\u00e7a Sema",
+    contractCheckActive: "Checks de contrato Sema v\u00e3o rodar junto com cada scan.",
+    contractCheckInactive: "Os scans rodam sem checks de contrato Sema at\u00e9 voc\u00ea ativar a governan\u00e7a.",
     ignoredCount: "{count} ignorados",
     noSelection: "Nenhum achado selecionado",
     selectFinding: "Selecione um achado para inspecionar impacto, recomenda\u00e7\u00e3o e contexto exato do c\u00f3digo.",
@@ -153,7 +165,7 @@ const messages = {
     folderEmpty: "N\u00e3o h\u00e1 subpastas aqui.",
     languageCopy: "Altere o idioma da interface local.",
     projectCopy: "Troque o projeto local ativo sem reiniciar o SentryWard.",
-    governanceCopy: "Sema continua opcional e aparece quando o projeto escolhe governan\u00e7a.",
+    governanceCopy: "Sema continua opcional. Ative quando este projeto quiser governan\u00e7a por contrato sem\u00e2ntico.",
     languageChanged: "Idioma alterado e salvo.",
   },
   es: {
@@ -197,6 +209,12 @@ const messages = {
     scanFailed: "Scan fall\u00f3",
     semaEnabled: "Gobernanza Sema activada",
     semaDisabled: "Gobernanza Sema desactivada",
+    semaEnableAction: "Activar Sema",
+    semaDisableAction: "Desactivar Sema",
+    semaToggleFailed: "No se pudo actualizar la gobernanza Sema",
+    governanceTitle: "Gobernanza Sema",
+    contractCheckActive: "Los checks de contrato Sema se ejecutar\u00e1n con cada scan.",
+    contractCheckInactive: "Los scans se ejecutan sin checks de contrato Sema hasta que actives la gobernanza.",
     ignoredCount: "{count} ignorados",
     noSelection: "Ningun hallazgo seleccionado",
     selectFinding: "Selecciona un hallazgo para revisar impacto, recomendaci\u00f3n y contexto exacto del c\u00f3digo.",
@@ -229,7 +247,7 @@ const messages = {
     folderEmpty: "No hay subcarpetas aqu\u00ed.",
     languageCopy: "Cambia el idioma de la interfaz local.",
     projectCopy: "Cambia el proyecto local activo sin reiniciar SentryWard.",
-    governanceCopy: "Sema sigue opcional y aparece cuando el proyecto elige gobernanza.",
+    governanceCopy: "Sema sigue opcional. Act\u00edvalo cuando este proyecto quiera gobernanza por contrato sem\u00e1ntico.",
     languageChanged: "Idioma cambiado y guardado.",
   },
 };
@@ -311,6 +329,8 @@ const elements = {
   settingsGovernanceTitle: $("#settings-governance-title"),
   settingsGovernanceCopy: $("#settings-governance-copy"),
   settingsSemaState: $("#settings-sema-state"),
+  settingsSemaDetail: $("#settings-sema-detail"),
+  settingsSemaToggle: $("#settings-sema-toggle"),
   folderModal: $("#folder-modal"),
   folderTitle: $("#folder-title"),
   folderCurrent: $("#folder-current"),
@@ -464,7 +484,7 @@ function renderStaticCopy() {
   setText(elements.settingsProjectTitle, t("chooseFolder"));
   setText(elements.settingsProjectCopy, t("projectCopy"));
   setText(elements.settingsFolderButton, t("chooseFolder"));
-  setText(elements.settingsGovernanceTitle, "Sema");
+  setText(elements.settingsGovernanceTitle, t("governanceTitle"));
   setText(elements.settingsGovernanceCopy, t("governanceCopy"));
   setText(elements.folderTitle, t("folderTitle"));
   setText(elements.folderGo, t("folderOpen"));
@@ -512,11 +532,16 @@ function renderOverview() {
   setText(elements.projectStack, formatStack(project));
   setText(elements.projectRoot, project?.root ?? "");
 
-  const semaText = overview?.config?.sema?.enabled ? t("semaEnabled") : t("semaDisabled");
+  const semaEnabled = Boolean(overview?.config?.sema?.enabled);
+  const semaText = semaEnabled ? t("semaEnabled") : t("semaDisabled");
   setText(elements.semaState, semaText);
   setText(elements.settingsSemaState, semaText);
-  elements.semaState.classList.toggle("safe", Boolean(overview?.config?.sema?.enabled));
-  elements.settingsSemaState.classList.toggle("safe", Boolean(overview?.config?.sema?.enabled));
+  setText(elements.settingsSemaDetail, semaEnabled ? t("contractCheckActive") : t("contractCheckInactive"));
+  setText(elements.settingsSemaToggle, semaEnabled ? t("semaDisableAction") : t("semaEnableAction"));
+  elements.settingsSemaToggle.setAttribute("aria-pressed", String(semaEnabled));
+  elements.settingsSemaToggle.classList.toggle("danger", semaEnabled);
+  elements.semaState.classList.toggle("safe", semaEnabled);
+  elements.settingsSemaState.classList.toggle("safe", semaEnabled);
 
   const active = activeFindings();
   const ignored = ignoredFindings();
@@ -809,7 +834,10 @@ async function runScan() {
   elements.scanButton.disabled = true;
   addActivity(t("scanning"));
   try {
-    const data = await requestJson("/api/scan", { method: "POST", body: JSON.stringify({ target: "." }) });
+    const data = await requestJson("/api/scan", {
+      method: "POST",
+      body: JSON.stringify({ target: ".", contractCheck: Boolean(state.overview?.config?.sema?.enabled) }),
+    });
     state.overview = {
       ...(state.overview ?? {}),
       scan: data.scan,
@@ -850,6 +878,26 @@ async function changeLanguage(language) {
     toast(`${t("scanFailed")}: ${error.message}`);
   } finally {
     elements.languageSelect.disabled = false;
+  }
+}
+
+async function toggleSemaGovernance() {
+  const enabled = !state.overview?.config?.sema?.enabled;
+  elements.settingsSemaToggle.disabled = true;
+  try {
+    const data = await requestJson("/api/sema", {
+      method: "POST",
+      body: JSON.stringify({ enabled }),
+    });
+    state.overview = data.overview;
+    state.findings = Array.isArray(state.overview.scan?.findings) ? state.overview.scan.findings : [];
+    addActivity(enabled ? t("semaEnabled") : t("semaDisabled"));
+    toast(enabled ? t("semaEnabled") : t("semaDisabled"));
+    renderOverview();
+  } catch (error) {
+    toast(`${t("semaToggleFailed")}: ${error.message}`);
+  } finally {
+    elements.settingsSemaToggle.disabled = false;
   }
 }
 
@@ -960,6 +1008,7 @@ function bindEvents() {
   elements.folderSelect.addEventListener("click", () => void selectFolder());
   elements.languageSelect.addEventListener("change", () => void changeLanguage(elements.languageSelect.value));
   elements.settingsLanguageSelect.addEventListener("change", () => void changeLanguage(elements.settingsLanguageSelect.value));
+  elements.settingsSemaToggle.addEventListener("click", () => void toggleSemaGovernance());
 }
 
 bindEvents();

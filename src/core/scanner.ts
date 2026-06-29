@@ -38,7 +38,7 @@ export async function scanProject(options: ScanOptions = {}): Promise<ScanResult
     language,
     t,
     semaContracts,
-    contractCheck: options.contractCheck ?? false,
+    contractCheck: options.contractCheck ?? config.sema.enabled,
   };
 
   const securityFindings = runGuards(allGuards, files, context, config);

@@ -30,13 +30,15 @@ module sentryward.scanner {
     output {
       resultado: ResultadoScan
       exitCode: Inteiro
+      diagnostico_auth_ownership_acionavel: Booleano
+      seed_demo_auth_ownership_info: Booleano
     }
     authz { escopo: cli.local.scan tenant: opcional }
     dados {
       classificacao_padrao: interno
       redacao_log: obrigatoria
       input { alvo: interno idioma: publico }
-      output { resultado: interno exitCode: publico }
+      output { resultado: interno exitCode: publico diagnostico_auth_ownership_acionavel: interno seed_demo_auth_ownership_info: interno }
     }
     audit {
       evento: sentryward.scan.executado
@@ -77,11 +79,21 @@ module sentryward.scanner {
     guarantees {
       resultado existe
       exitCode em [0, 1, 2]
+      diagnostico_auth_ownership_acionavel existe
+      seed_demo_auth_ownership_info existe
     }
     tests {
       caso "detecta app vulneravel" {
         given { alvo: "examples/vulnerable-app" idioma: "en" }
         expect { sucesso: verdadeiro exitCode: 1 }
+      }
+      caso "auth ownership explica acao segura" {
+        given { alvo: "fixture-auth-ownership" idioma: "pt-BR" }
+        expect { sucesso: verdadeiro diagnostico_auth_ownership_acionavel: verdadeiro }
+      }
+      caso "seed demo nao vira alerta alto de ownership" {
+        given { alvo: "fixture-seed" idioma: "en" }
+        expect { sucesso: verdadeiro seed_demo_auth_ownership_info: verdadeiro }
       }
     }
   }

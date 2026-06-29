@@ -10,9 +10,9 @@ import { detectProject } from "./projectDetector.js";
 import { scanProject } from "./scanner.js";
 import { countBySeverity } from "./severity.js";
 import { readScanResult } from "./storage.js";
-import type { Language, ScanResult, Severity } from "../types/index.js";
+import type { Language, ScanResult, Severity, WardConfig } from "../types/index.js";
 
-const UI_VERSION = "0.1.7";
+const UI_VERSION = "0.1.8";
 const DEFAULT_PORT = 7331;
 const HOST = "127.0.0.1";
 
@@ -205,6 +205,19 @@ async function overview(root: string, language: Language): Promise<Record<string
   };
 }
 
+export async function updateSemaGovernance(root: string, enabled: boolean): Promise<WardConfig> {
+  return updateConfig(root, (config) => ({
+    ...config,
+    sema: {
+      ...config.sema,
+      enabled,
+      contractMode: "optional",
+      driftCheck: true,
+      impactMap: true,
+    },
+  }));
+}
+
 async function serveStatic(requestUrl: URL, response: ServerResponse): Promise<void> {
   const root = uiRoot();
   const pathname = decodeURIComponent(requestUrl.pathname === "/" ? "/index.html" : requestUrl.pathname);
@@ -260,9 +273,24 @@ async function handleApi(
       target,
       storageRoot: state.root,
       lang: state.language,
-      contractCheck: Boolean(body.contractCheck),
+      contractCheck: body.contractCheck === undefined ? undefined : Boolean(body.contractCheck),
     });
     writeJson(response, 200, { ok: true, scan: result, counts: severityCounts(result) });
+    return;
+  }
+
+  if (request.method === "POST" && requestUrl.pathname === "/api/sema") {
+    const body = await readBody(request);
+    if (typeof body.enabled !== "boolean") {
+      writeError(response, 400, "Missing enabled boolean.");
+      return;
+    }
+    await updateSemaGovernance(state.root, body.enabled);
+    writeJson(response, 200, {
+      ok: true,
+      enabled: body.enabled,
+      overview: await overview(state.root, state.language),
+    });
     return;
   }
 

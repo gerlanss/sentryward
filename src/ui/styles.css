@@ -587,6 +587,20 @@ input {
   gap: 16px;
 }
 
+.settings-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-stack .status-pill,
+.settings-stack p {
+  margin: 0;
+}
+
+.settings-stack button {
+  justify-self: start;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;

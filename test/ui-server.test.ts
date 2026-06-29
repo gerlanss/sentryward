@@ -52,4 +52,37 @@ describe("SentryWard UI server", () => {
     expect(enFinding.title).toContain("Admin route without authentication");
     expect(enFinding.problem).not.toContain("autentica\u00e7\u00e3o");
   });
+
+  it("toggles optional Sema governance from the local UI API", async () => {
+    const root = await copyVulnerableApp();
+    const server = await createUiServer({ root, port: 0, lang: "en" });
+    servers.push(server);
+
+    const enabled = await json(
+      await fetch(`${server.url}api/sema`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ enabled: true }),
+      }),
+    );
+    expect((enabled.overview as any).config.sema.enabled).toBe(true);
+
+    const scan = await json(
+      await fetch(`${server.url}api/scan`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ target: "." }),
+      }),
+    );
+    expect((scan.scan as any).findings.some((finding: any) => finding.id === "SW-SEMA-001")).toBe(true);
+
+    const disabled = await json(
+      await fetch(`${server.url}api/sema`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ enabled: false }),
+      }),
+    );
+    expect((disabled.overview as any).config.sema.enabled).toBe(false);
+  });
 });

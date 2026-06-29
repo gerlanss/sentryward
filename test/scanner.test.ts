@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { scanProject } from "../src/core/scanner.js";
 import { loadTranslator } from "../src/core/i18n.js";
@@ -63,5 +65,29 @@ describe("SentryWard scanner", () => {
     const result = await scanProject({ root: vulnerableRoot, persist: false, contractCheck: false });
     expect(result.findings.length).toBeGreaterThan(10);
     expect(result.score).toBeLessThan(100);
+  });
+
+  it("returns actionable SW-AUTH-004 ownership diagnostics", async () => {
+    const root = await mkdtemp(resolve(tmpdir(), "sentryward-auth-"));
+    try {
+      await mkdir(resolve(root, "src"), { recursive: true });
+      await mkdir(resolve(root, "prisma"), { recursive: true });
+      const riskyAction = "export async function loadCustomer(userId: string) { return prisma.customer.findUnique({ where: { id: userId } }); }";
+      await writeFile(resolve(root, "src/actions.ts"), riskyAction, "utf8");
+      await writeFile(resolve(root, "prisma/seed.ts"), riskyAction, "utf8");
+
+      const result = await scanProject({ root, persist: false, lang: "pt-BR" });
+      const runtime = result.findings.find((finding) => finding.id === "SW-AUTH-004" && finding.file === "src/actions.ts");
+      const seed = result.findings.find((finding) => finding.id === "SW-AUTH-004" && finding.file === "prisma/seed.ts");
+
+      expect(runtime?.severity).toBe("high");
+      expect(runtime?.title).toContain("ownership");
+      expect(runtime?.problem).toContain("restri\u00e7\u00e3o");
+      expect(runtime?.problem).not.toContain("regra local determin\u00edstica");
+      expect(seed?.severity).toBe("info");
+      expect(seed?.fixAvailable).toBe(false);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
   });
 });

@@ -14,6 +14,7 @@ module sentryward.ui {
       url_local: Texto
       idioma: Texto
       aba_ativa: Texto
+      sema_governance: Booleano
     }
   }
 
@@ -187,6 +188,76 @@ module sentryward.ui {
       caso "troca projeto ativo pela interface" {
         given { pasta_atual: "." pasta_destino: "examples/vulnerable-app" selecionar: verdadeiro }
         expect { sucesso: verdadeiro estado: "pasta_visual" }
+      }
+    }
+  }
+
+  task alternar_governanca_sema_interface {
+    input {
+      habilitar: Booleano required
+    }
+    output {
+      estado: EstadoInterfaceWard
+      sema_governance: Booleano
+    }
+    authz { escopo: cli.local.ui tenant: opcional }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { habilitar: publico }
+      output { estado: interno sema_governance: publico }
+    }
+    audit {
+      evento: sentryward.ui.sema_alternado
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      tornar_sema_obrigatorio_no_modo_padrao
+      upload_codigo_fonte
+      telemetria_externa
+      scan_url_remota
+      log.segredo
+      retorno.credencial
+    }
+    rules {
+      habilitar deve_ser booleano
+    }
+    effects {
+      fs.write configuracao_sentryward criticidade = media
+      evento governanca_sema_opcional criticidade = media
+      auditoria ui_cli criticidade = baixa
+    }
+    impl { ts: src.core.ui_server.updateSemaGovernance }
+    vinculos {
+      arquivo: "src/core/config.ts"
+      arquivo: "src/core/scanner.ts"
+      arquivo: "src/core/uiServer.ts"
+      arquivo: "src/ui/index.html"
+      arquivo: "src/ui/styles.css"
+      arquivo: "src/ui/app.js"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "10s"
+      retry: "nenhum"
+      compensacao: "restaurar_configuracao_anterior"
+      criticidade_operacional: media
+    }
+    guarantees {
+      estado existe
+      sema_governance existe
+    }
+    tests {
+      caso "ativa governanca Sema opcional pela interface" {
+        given { habilitar: verdadeiro }
+        expect { sucesso: verdadeiro estado: "sema_governance_ativada" }
+      }
+      caso "desativa governanca Sema sem bloquear scan" {
+        given { habilitar: falso }
+        expect { sucesso: verdadeiro estado: "sema_governance_desativada" }
       }
     }
   }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.8
+
+- Added a visual Settings control to enable or disable optional Sema governance from `ward ui`.
+- Made scans honor the saved Sema governance setting for optional contract coverage checks.
+- Added actionable SW-AUTH-004 diagnostics and reduced seed/demo ownership matches to informational findings.
+
 ## 0.1.7
 
 - Fixed browser UI language switching so existing findings are refreshed in the selected language.

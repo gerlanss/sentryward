@@ -333,6 +333,12 @@
       "impact": "Qualquer pessoa pode conseguir chamar um endpoint administrativo.",
       "recommendation": "Use middleware de auth existente, valide papel admin e preserve o comportamento da rota."
     },
+    "SW-AUTH-004": {
+      "title": "Checagem de ownership ausente perto de lookup ou escrita com userId",
+      "problem": "O código usa params, req.params ou userId perto de um lookup ou escrita, mas o SentryWard não viu uma restrição próxima por dono, tenant ou usuário da sessão.",
+      "impact": "Uma action de servidor ou caminho runtime pode ler ou alterar cliente, crédito, estoque, venda ou fidelidade sem provar que o ator pode operar nesse recurso.",
+      "recommendation": "Verifique caminhos seed/demo separadamente. Em código runtime, adicione a menor checagem existente de ownership, tenant, loja, cliente ou papel antes do lookup ou da mutação."
+    },
     "SW-DB-001": {
       "title": "Risco de interpolação SQL",
       "problem": "SQL parece ser montado com interpolação de template.",

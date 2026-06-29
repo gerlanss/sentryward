@@ -333,6 +333,12 @@
       "impact": "Anyone may be able to call an administrative endpoint.",
       "recommendation": "Use existing auth middleware, validate admin role, and preserve route behavior."
     },
+    "SW-AUTH-004": {
+      "title": "Ownership check missing near user-bound lookup or write",
+      "problem": "The code uses params, req.params, or userId near a lookup or write, but SentryWard could not see a nearby owner, tenant, or session-user constraint.",
+      "impact": "A server action or runtime path may read or mutate customer, credit, stock, sale, or loyalty data without proving the actor can operate on that resource.",
+      "recommendation": "Verify seed/demo paths separately. For runtime code, add the smallest existing ownership, tenant, store, customer, or role check before the lookup or mutation."
+    },
     "SW-DB-001": {
       "title": "SQL interpolation risk",
       "problem": "SQL appears to be built with template interpolation.",

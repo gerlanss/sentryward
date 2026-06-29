@@ -36,7 +36,18 @@ export const authGuard: Guard = {
         severity: "high",
         confidence: 0.7,
         pattern: /(params\.id|req\.params\.id|userId).{0,160}(findUnique|findById|select|where).{0,80}(?!ownerId|tenantId|user\.id|session\.user)/gis,
+        excludePath: /(^|\/)(prisma\/seed\.ts|[^/]*seed\.(ts|tsx|js|jsx))$/i,
         tags: ["ownership"],
+      },
+      {
+        ruleId: "SW-AUTH-004",
+        category: "auth",
+        severity: "info",
+        confidence: 0.45,
+        pattern: /(params\.id|req\.params\.id|userId).{0,160}(findUnique|findById|select|where).{0,80}(?!ownerId|tenantId|user\.id|session\.user)/gis,
+        path: /(^|\/)(prisma\/seed\.ts|[^/]*seed\.(ts|tsx|js|jsx))$/i,
+        fixAvailable: false,
+        tags: ["ownership", "seed-demo"],
       },
     ]);
   },

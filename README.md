@@ -80,7 +80,7 @@ ward ui . --port 7331
 ward ui C:\GitHub\my-app --no-open
 ```
 
-The UI is served only on `127.0.0.1` by the local CLI process. It shows project context, Sema complement status, score, findings, settings, local folder selection, exact code context, copy buttons, multi-select, and ignored/restored findings. The browser UI is click-first; slash commands stay in the terminal watch console.
+The UI is served only on `127.0.0.1` by the local CLI process. It shows project context, Sema complement status, score, findings, settings, local folder selection, exact code context, copy buttons, multi-select, and ignored/restored findings. Open Settings to enable or disable optional Sema governance for contract coverage checks. The browser UI is click-first; slash commands stay in the terminal watch console.
 
 ## Language
 
@@ -129,6 +129,8 @@ ward --governed
 ward fix SW-AUTH-014 --sema
 ward fix SW-AUTH-014 --require-contract
 ```
+
+In `ward ui`, use Settings to turn optional Sema governance on for the active local project. When enabled, scans include optional contract coverage findings; when disabled, the scanner keeps working normally without Sema.
 
 If strict contract mode is requested and no applicable `.sema` contract exists, SentryWard blocks the fix. Otherwise it continues with the standard safe flow and recommends Sema as a complement.
 

@@ -48,6 +48,8 @@ program
   .option("--governed", t("cli.options.governed"))
   .action(async (options) =>
     runWatchCommand({
+      lang,
+      t,
       sema: Boolean(options.sema || program.opts().sema),
       governed: Boolean(options.governed || program.opts().governed),
     }),
@@ -128,7 +130,7 @@ sema.command("status").description(t("commands.semaStatus")).action(async () => 
 sema.command("init").description(t("commands.semaInit")).action(async () => runSemaInitCommand({ t }));
 sema.command("sync").description(t("commands.semaSync")).action(async () => runSemaSyncCommand({ t }));
 
-program.action(async (options) => runWatchCommand({ sema: options.sema, governed: options.governed }));
+program.action(async (options) => runWatchCommand({ lang, t, sema: options.sema, governed: options.governed }));
 
 program.parseAsync(process.argv).catch((error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);

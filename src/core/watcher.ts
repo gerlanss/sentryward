@@ -8,11 +8,17 @@ import { printScanDashboard, printWatchIntro } from "./logger.js";
 import { detectProject } from "./projectDetector.js";
 import { severityAtLeast } from "./severity.js";
 import { scanProject } from "./scanner.js";
+import type { Language } from "../types/index.js";
 
-export async function startWatcher(rootInput: string, options: { sema?: boolean; governed?: boolean } = {}) {
+export interface WatchSession {
+  close(): Promise<void>;
+}
+
+export async function startWatcher(rootInput: string, options: { sema?: boolean; governed?: boolean; lang?: Language } = {}) {
   const root = resolve(rootInput);
   const config = await loadConfig(root);
-  const t = loadTranslator(resolveLanguage(config));
+  const lang = resolveLanguage(config, options.lang);
+  const t = loadTranslator(lang);
   const seen = new Set<string>();
 
   console.log(pc.green(`$ ward`));
@@ -20,21 +26,25 @@ export async function startWatcher(rootInput: string, options: { sema?: boolean;
   console.log(`${t("sema.governance")}: ${options.sema || options.governed ? t("common.enabled") : t("common.disabled")}`);
 
   const watcher = chokidar.watch(root, {
-    ignored: /(^|[\\/])(\.git|node_modules|dist|build|coverage|\.next|\.venv|vendor)([\\/]|$)/,
+    ignored: /(^|[\\/])(\.git|\.sentryward|node_modules|dist|build|coverage|\.next|\.venv|vendor)([\\/]|$)/,
     ignoreInitial: true,
   });
 
   let timer: NodeJS.Timeout | undefined;
   const changed = new Set<string>();
+  let closed = false;
 
   async function flush() {
+    if (closed) return;
     const files = [...changed];
     changed.clear();
     const result = await scanProject({
       root,
       changedFiles: files,
+      lang,
       contractCheck: Boolean(options.sema || options.governed),
     });
+    if (closed) return;
     const newAlerts = result.findings.filter(
       (finding) => !seen.has(finding.fingerprint) && severityAtLeast(finding.severity, config.watch.alertThreshold),
     );
@@ -49,10 +59,18 @@ export async function startWatcher(rootInput: string, options: { sema?: boolean;
   }
 
   watcher.on("all", (_event, filePath) => {
+    if (closed) return;
     changed.add(filePath);
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => void flush().catch((error) => console.error(error)), config.watch.debounceMs);
   });
 
-  return watcher;
+  return {
+    async close() {
+      closed = true;
+      if (timer) clearTimeout(timer);
+      changed.clear();
+      await watcher.close();
+    },
+  };
 }

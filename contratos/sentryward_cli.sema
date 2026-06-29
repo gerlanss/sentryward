@@ -150,7 +150,7 @@ module sentryward.cli {
       criticidade_operacional: media
     }
     guarantees {
-      status existe
+      status em [watching, console_interativo_slash]
       findingsPersistidos existe
     }
     tests {

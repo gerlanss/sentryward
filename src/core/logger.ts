@@ -272,7 +272,6 @@ export function printScanDashboard(t: Translator, result: ScanResult): void {
     spotlight ? buildFindingCard(t, result, spotlight, rightWidth) : "",
     buildTopFindings(t, result, rightWidth),
     buildFooter(t, result, rightWidth),
-    pc.green("ward>"),
   ]
     .filter(Boolean)
     .join("\n");
@@ -310,9 +309,33 @@ export function printWatchIntro(t: Translator, project: ProjectInfo, options: { 
         width,
         "gray",
       ),
-      pc.green("ward>"),
+      boxed(
+        [
+          pc.magenta(t("console.ready")),
+          t("console.readyBody"),
+          t("console.scanHint"),
+          t("console.historyHint"),
+        ].join("\n"),
+        width,
+        "magenta",
+      ),
     ].join("\n"),
   );
+}
+
+export function printWatchConsoleHelp(t: Translator): void {
+  const width = terminalWidth();
+  const lines = [
+    pc.magenta(t("console.helpTitle")),
+    t("console.helpScan"),
+    t("console.helpStatus"),
+    t("console.helpFindings"),
+    t("console.helpExplain"),
+    t("console.helpFix"),
+    t("console.helpClear"),
+    t("console.helpQuit"),
+  ];
+  console.log(boxed(lines.join("\n"), width, "gray"));
 }
 
 export function header(t: Translator): string {

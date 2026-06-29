@@ -105,6 +105,24 @@
     "nothing": "Nada peligroso está visible ahora.",
     "noNewIssues": "No se encontraron nuevos hallazgos altos o críticos."
   },
+  "console": {
+    "ready": "Consola interactiva lista.",
+    "readyBody": "Escribe /help para ver comandos. Presiona Ctrl+C o escribe /quit para salir.",
+    "scanHint": "Ejecuta /scan para escanear ahora mientras el modo watch sigue escuchando.",
+    "historyHint": "Usa las flechas para navegar por el historial de comandos.",
+    "helpTitle": "Comandos slash",
+    "helpScan": "/scan [ruta]      ejecuta un scan y mantiene esta consola abierta",
+    "helpStatus": "/status           muestra el último resumen de seguridad guardado",
+    "helpFindings": "/findings         lista hallazgos guardados",
+    "helpExplain": "/explain <id>     explica un hallazgo",
+    "helpFix": "/fix <id>         muestra un plan de corrección",
+    "helpClear": "/clear            limpia el terminal",
+    "helpQuit": "/quit             cierra SentryWard",
+    "unknown": "Comando desconocido. Usa /help; los comandos empiezan con /.",
+    "missingFindingId": "Pasa un id de hallazgo, por ejemplo /explain SW-AUTH-014.",
+    "scanRunning": "Ejecutando scan...",
+    "bye": "SentryWard cerrado."
+  },
   "init": {
     "created": "Configuración de SentryWard creada."
   },

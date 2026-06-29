@@ -24,8 +24,8 @@ ward scan .
 ## Commands
 
 ```bash
-ward                         # watch mode by default
-ward watch                   # explicit watch mode
+ward                         # interactive watch console by default
+ward watch                   # explicit interactive watch console
 ward scan .                  # full local scan
 ward scan . --contract-check # security scan plus optional Sema governance gaps
 ward init                    # create .sentryward config
@@ -43,6 +43,18 @@ ward surface
 ward sema status
 ward sema init
 ward sema sync
+```
+
+Inside the interactive watch console, use slash commands:
+
+```bash
+/help
+/scan .
+/status
+/findings
+/explain SW-AUTH-014
+/fix SW-AUTH-014
+/quit
 ```
 
 ## Language

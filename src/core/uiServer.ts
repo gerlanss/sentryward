@@ -1,8 +1,8 @@
 // SEMA-GOVERNED: module sentryward.ui; local UI server follows contratos/sentryward_ui.sema.
 import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import { dirname, extname, resolve, sep } from "node:path";
+import { dirname, extname, isAbsolute, parse, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defaultConfig, loadConfig, resolveLanguage, updateConfig } from "./config.js";
 import { normalizeLanguage } from "./i18n.js";
@@ -12,7 +12,7 @@ import { countBySeverity } from "./severity.js";
 import { readScanResult } from "./storage.js";
 import type { Language, ScanResult, Severity } from "../types/index.js";
 
-const UI_VERSION = "0.1.5";
+const UI_VERSION = "0.1.6";
 const DEFAULT_PORT = 7331;
 const HOST = "127.0.0.1";
 
@@ -34,6 +34,37 @@ export interface UiServerHandle {
   server: Server;
   url: string;
   close(): Promise<void>;
+}
+
+export interface LocalDirectoryEntry {
+  name: string;
+  path: string;
+}
+
+export interface LocalDirectoryListing {
+  current: string;
+  parent?: string;
+  entries: LocalDirectoryEntry[];
+  drives: string[];
+}
+
+export interface SourceContextLine {
+  number: number;
+  text: string;
+  hit: boolean;
+}
+
+export interface SourceContext {
+  file: string;
+  line: number;
+  start: number;
+  end: number;
+  lines: SourceContextLine[];
+}
+
+interface UiRuntimeState {
+  root: string;
+  language: Language;
 }
 
 function uiRoot(): string {
@@ -77,6 +108,78 @@ async function readBody(request: IncomingMessage): Promise<Record<string, unknow
     return {};
   }
   return JSON.parse(Buffer.concat(chunks).toString("utf8")) as Record<string, unknown>;
+}
+
+function resolveLocalPath(input: unknown, fallback: string): string {
+  const raw = typeof input === "string" && input.trim() ? input.trim() : fallback;
+  return isAbsolute(raw) ? resolve(raw) : resolve(fallback, raw);
+}
+
+function resolveProjectFile(root: string, relativePath: string): string {
+  if (!relativePath || isAbsolute(relativePath)) {
+    throw new Error("Use a relative file path inside the active project.");
+  }
+  const projectRoot = resolve(root);
+  const filePath = resolve(projectRoot, relativePath);
+  const boundary = projectRoot.endsWith(sep) ? projectRoot : `${projectRoot}${sep}`;
+  if (!(filePath === projectRoot || filePath.startsWith(boundary))) {
+    throw new Error("File is outside the active project.");
+  }
+  return filePath;
+}
+
+function windowsDrives(): string[] {
+  if (process.platform !== "win32") {
+    const root = parse(process.cwd()).root;
+    return root ? [root] : [];
+  }
+  const drives: string[] = [];
+  for (let code = 65; code <= 90; code += 1) {
+    const drive = `${String.fromCharCode(code)}:\\`;
+    if (existsSync(drive)) {
+      drives.push(drive);
+    }
+  }
+  return drives;
+}
+
+export async function listLocalDirectories(basePath: string): Promise<LocalDirectoryListing> {
+  const current = resolve(basePath);
+  const entries = await readdir(current, { withFileTypes: true });
+  const directories = entries
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => ({ name: entry.name, path: resolve(current, entry.name) }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const parent = dirname(current);
+  return {
+    current,
+    parent: parent === current ? undefined : parent,
+    entries: directories,
+    drives: windowsDrives(),
+  };
+}
+
+export async function readSourceContext(
+  root: string,
+  relativePath: string,
+  line: number,
+  radius = 5,
+): Promise<SourceContext> {
+  const filePath = resolveProjectFile(root, relativePath);
+  const safeLine = Math.max(1, Math.trunc(Number.isFinite(line) ? line : 1));
+  const safeRadius = Math.max(2, Math.min(12, Math.trunc(radius)));
+  const source = (await readFile(filePath, "utf8")).split(/\r?\n/);
+  const start = Math.max(1, safeLine - safeRadius);
+  const end = Math.min(source.length, safeLine + safeRadius);
+  const lines = [];
+  for (let lineNumber = start; lineNumber <= end; lineNumber += 1) {
+    lines.push({
+      number: lineNumber,
+      text: source[lineNumber - 1] ?? "",
+      hit: lineNumber === safeLine,
+    });
+  }
+  return { file: relativePath, line: safeLine, start, end, lines };
 }
 
 function severityCounts(result: ScanResult | undefined): Record<Severity, number> {
@@ -126,25 +229,50 @@ async function handleApi(
   request: IncomingMessage,
   response: ServerResponse,
   requestUrl: URL,
-  root: string,
-  language: Language,
-): Promise<Language> {
+  state: UiRuntimeState,
+): Promise<void> {
   if (request.method === "GET" && requestUrl.pathname === "/api/overview") {
-    writeJson(response, 200, await overview(root, language));
-    return language;
+    writeJson(response, 200, await overview(state.root, state.language));
+    return;
+  }
+
+  if (request.method === "GET" && requestUrl.pathname === "/api/directories") {
+    const target = resolveLocalPath(requestUrl.searchParams.get("path"), state.root);
+    writeJson(response, 200, { ok: true, directory: await listLocalDirectories(target) });
+    return;
+  }
+
+  if (request.method === "GET" && requestUrl.pathname === "/api/source") {
+    const file = requestUrl.searchParams.get("file");
+    if (!file) {
+      writeError(response, 400, "Missing file parameter.");
+      return;
+    }
+    const line = Number(requestUrl.searchParams.get("line") ?? 1);
+    writeJson(response, 200, { ok: true, source: await readSourceContext(state.root, file, line) });
+    return;
   }
 
   if (request.method === "POST" && requestUrl.pathname === "/api/scan") {
     const body = await readBody(request);
-    const target = typeof body.target === "string" && body.target.trim() ? resolve(root, body.target) : root;
+    const target = resolveLocalPath(body.target, state.root);
     const result = await scanProject({
       target,
-      storageRoot: root,
-      lang: language,
+      storageRoot: state.root,
+      lang: state.language,
       contractCheck: Boolean(body.contractCheck),
     });
     writeJson(response, 200, { ok: true, scan: result, counts: severityCounts(result) });
-    return language;
+    return;
+  }
+
+  if (request.method === "POST" && requestUrl.pathname === "/api/root") {
+    const body = await readBody(request);
+    const nextRoot = resolveLocalPath(body.path, state.root);
+    await listLocalDirectories(nextRoot);
+    state.root = nextRoot;
+    writeJson(response, 200, { ok: true, root: state.root, overview: await overview(state.root, state.language) });
+    return;
   }
 
   if (request.method === "POST" && requestUrl.pathname === "/api/language") {
@@ -153,25 +281,27 @@ async function handleApi(
     const normalizedLanguage = normalizeLanguage(requested);
     if (!normalizedLanguage) {
       writeError(response, 400, "Unsupported language. Use en, pt-BR, or es.");
-      return language;
+      return;
     }
-    const nextConfig = await updateConfig(root, (config) => ({
+    const nextConfig = await updateConfig(state.root, (config) => ({
       ...config,
       language: normalizedLanguage,
     }));
-    const nextLanguage = nextConfig.language;
-    writeJson(response, 200, { ok: true, language: nextLanguage, overview: await overview(root, nextLanguage) });
-    return nextLanguage;
+    state.language = nextConfig.language;
+    writeJson(response, 200, { ok: true, language: state.language, overview: await overview(state.root, state.language) });
+    return;
   }
 
   writeError(response, 404, "Unknown API route");
-  return language;
 }
 
 export async function createUiServer(options: UiServerOptions): Promise<UiServerHandle> {
   const root = resolve(options.root);
   const config = await loadConfig(root).catch(() => defaultConfig);
-  let language = resolveLanguage(config, options.lang);
+  const state: UiRuntimeState = {
+    root,
+    language: resolveLanguage(config, options.lang),
+  };
   const requestedPort = normalizePort(options.port);
 
   const server = createServer((request, response) => {
@@ -179,7 +309,7 @@ export async function createUiServer(options: UiServerOptions): Promise<UiServer
       try {
         const requestUrl = new URL(request.url ?? "/", `http://${HOST}`);
         if (requestUrl.pathname.startsWith("/api/")) {
-          language = await handleApi(request, response, requestUrl, root, language);
+          await handleApi(request, response, requestUrl, state);
           return;
         }
         await serveStatic(requestUrl, response);

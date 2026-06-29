@@ -7,7 +7,7 @@ Create and maintain the local SentryWard interface opened by `ward ui`.
 ## Scope
 
 - Local-only web interface served from the CLI process.
-- Visual project dashboard, security summary, findings list, settings, and chat-style command composer.
+- Visual project dashboard, security summary, findings list, settings, folder picker, source context, copy actions, and ignore/restore controls.
 - No external hosting, no source upload, no telemetry, and no remote target scanning.
 - The terminal `ward` workflow remains available for quick CLI usage.
 
@@ -32,7 +32,7 @@ Create and maintain the local SentryWard interface opened by `ward ui`.
 - `corepack pnpm test`
 - `node dist/cli.js ui --no-open --port <free-port>`
 - HTTP smoke check for the UI HTML and API endpoints.
-- Browser smoke check when practical to confirm the dashboard renders and the command composer is usable.
+- Browser smoke check when practical to confirm the dashboard renders, folder picker works, findings can be selected, code context appears, and action buttons respond.
 
 ## Rollback
 

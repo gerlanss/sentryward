@@ -1,6 +1,6 @@
 module sentryward.ui {
   docs {
-    resumo: "Interface local SentryWard: ward ui abre painel visual com dashboard, findings, settings e chat de comandos sem enviar codigo para fora."
+    resumo: "Interface local SentryWard: ward ui abre painel visual com dashboard, abas, botoes, settings e escolha de pasta sem enviar codigo para fora."
   }
 
   use sentryward.cli
@@ -13,6 +13,26 @@ module sentryward.ui {
       findings: Lista
       url_local: Texto
       idioma: Texto
+      aba_ativa: Texto
+    }
+  }
+
+  entity DiretorioLocalWard {
+    fields {
+      nome: Texto
+      caminho: Texto
+      pai: Texto
+      diretorios: Lista
+      drives: Lista
+    }
+  }
+
+  entity ContextoCodigoWard {
+    fields {
+      arquivo: Texto
+      linha: Inteiro
+      trecho: Lista
+      linha_marcada: Inteiro
     }
   }
 
@@ -80,19 +100,166 @@ module sentryward.ui {
       servidorAtivo == verdadeiro
       url existe
       estado existe
+      estado em [dashboard_visual, achados_visual, ajustes_visual, pasta_visual]
     }
     tests {
       caso "abre interface local sem navegador" {
         given { projeto: "." porta: 0 idioma: "en" abrir_navegador: falso }
         expect { sucesso: verdadeiro servidorAtivo: verdadeiro url: "127.0.0.1" }
       }
-      caso "chat slash exibe menu sobre input" {
+      caso "dashboard visual abre sem comando digitado" {
         given { projeto: "." porta: 0 idioma: "pt-BR" abrir_navegador: falso }
-        expect { sucesso: verdadeiro estado: "command_palette_overlay" }
+        expect { sucesso: verdadeiro estado: "dashboard_visual" }
       }
       caso "scan pela interface atualiza findings" {
         given { projeto: "examples/vulnerable-app" porta: 0 idioma: "en" abrir_navegador: falso }
         expect { sucesso: verdadeiro estado: "findings_atualizados" }
+      }
+    }
+  }
+
+  task escolher_pasta_interface {
+    input {
+      pasta_atual: Texto required
+      pasta_destino: Texto
+      selecionar: Booleano
+    }
+    output {
+      diretorio: DiretorioLocalWard
+      estado: EstadoInterfaceWard
+    }
+    authz { escopo: cli.local.ui tenant: opcional }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { pasta_atual: interno pasta_destino: interno selecionar: publico }
+      output { diretorio: interno estado: interno }
+    }
+    audit {
+      evento: sentryward.ui.pasta_escolhida
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      bind_publico
+      upload_codigo_fonte
+      telemetria_externa
+      listar_rede_remota
+      scan_url_remota
+      log.segredo
+      retorno.credencial
+    }
+    rules {
+      pasta_atual deve_ser caminho_local
+      pasta_destino deve_ser caminho_local
+      selecionar deve_ser confirmado_quando_verdadeiro
+    }
+    effects {
+      consulta diretorios_locais criticidade = media
+      evento troca_projeto_interface criticidade = media
+      auditoria ui_cli criticidade = baixa
+    }
+    impl { ts: src.core.ui_server.listLocalDirectories }
+    vinculos {
+      arquivo: "src/core/uiServer.ts"
+      arquivo: "src/ui/index.html"
+      arquivo: "src/ui/styles.css"
+      arquivo: "src/ui/app.js"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "10s"
+      retry: "nenhum"
+      compensacao: "manter_pasta_anterior"
+      criticidade_operacional: media
+    }
+    guarantees {
+      diretorio existe
+      estado existe
+    }
+    tests {
+      caso "lista diretorios locais" {
+        given { pasta_atual: "." selecionar: falso }
+        expect { sucesso: verdadeiro diretorio: "diretorios" }
+      }
+      caso "troca projeto ativo pela interface" {
+        given { pasta_atual: "." pasta_destino: "examples/vulnerable-app" selecionar: verdadeiro }
+        expect { sucesso: verdadeiro estado: "pasta_visual" }
+      }
+    }
+  }
+
+  task gerenciar_achados_interface {
+    input {
+      finding_ids: Lista required
+      acao: Texto required
+      arquivo: Texto
+      linha: Inteiro
+    }
+    output {
+      estado: EstadoInterfaceWard
+      contexto: ContextoCodigoWard
+    }
+    authz { escopo: cli.local.ui tenant: opcional }
+    dados {
+      classificacao_padrao: interno
+      redacao_log: obrigatoria
+      input { finding_ids: interno acao: publico arquivo: interno linha: interno }
+      output { estado: interno contexto: interno }
+    }
+    audit {
+      evento: sentryward.ui.achado_gerenciado
+      ator: operador.local
+      correlacao: processo_cli
+      retencao: "30d"
+      motivo: obrigatorio
+    }
+    forbidden {
+      alterar_codigo_alvo
+      upload_codigo_fonte
+      telemetria_externa
+      log.segredo
+      retorno.credencial
+    }
+    rules {
+      finding_ids deve_ser preenchido
+      acao em [selecionar, selecionar_todos, copiar, ignorar, restaurar, carregar_codigo]
+      arquivo deve_ser caminho_relativo_quando_informado
+    }
+    effects {
+      consulta arquivo_local criticidade = media
+      evento selecao_achados criticidade = baixa
+      evento ignorar_achado_local criticidade = baixa
+      auditoria ui_cli criticidade = baixa
+    }
+    impl { ts: src.core.ui_server.readSourceContext }
+    vinculos {
+      arquivo: "src/core/uiServer.ts"
+      arquivo: "src/ui/index.html"
+      arquivo: "src/ui/styles.css"
+      arquivo: "src/ui/app.js"
+    }
+    execucao {
+      idempotencia: verdadeiro
+      timeout: "10s"
+      retry: "nenhum"
+      compensacao: "restaurar_estado_visual"
+      criticidade_operacional: media
+    }
+    guarantees {
+      estado existe
+      contexto existe
+    }
+    tests {
+      caso "mostra trecho de codigo do achado" {
+        given { finding_ids: ["SW-DB-002"] acao: "carregar_codigo" arquivo: "src/lib/db.ts" linha: 6 }
+        expect { sucesso: verdadeiro contexto: "linha_marcada" }
+      }
+      caso "ignora e restaura achado proposital" {
+        given { finding_ids: ["SW-DB-002"] acao: "ignorar" }
+        expect { sucesso: verdadeiro estado: "achados_visual" }
       }
     }
   }

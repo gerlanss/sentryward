@@ -27,7 +27,7 @@ ward scan .
 ## Commands
 
 ```bash
-ward ui                      # local visual interface with dashboard and command composer
+ward ui                      # local visual interface with dashboard, tabs, buttons, and findings review
 ward                         # compact terminal home with slash-command console
 ward watch                   # explicit main panel with file watch
 ward scan .                  # full local scan
@@ -80,7 +80,7 @@ ward ui . --port 7331
 ward ui C:\GitHub\my-app --no-open
 ```
 
-The UI is served only on `127.0.0.1` by the local CLI process. It shows project context, Sema complement status, score, findings, settings, and a command composer. Typing `/` opens a command palette above the input; it does not print command suggestions into the terminal history.
+The UI is served only on `127.0.0.1` by the local CLI process. It shows project context, Sema complement status, score, findings, settings, local folder selection, exact code context, copy buttons, multi-select, and ignored/restored findings. The browser UI is click-first; slash commands stay in the terminal watch console.
 
 ## Language
 

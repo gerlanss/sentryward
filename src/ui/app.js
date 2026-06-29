@@ -1,3 +1,4 @@
+/* global localStorage, navigator */
 // SEMA-GOVERNED: module sentryward.ui; browser behavior follows contratos/sentryward_ui.sema.
 const severityOrder = ["critical", "high", "medium", "low", "info"];
 const languages = ["en", "pt-BR", "es"];
@@ -5,219 +6,228 @@ const languages = ["en", "pt-BR", "es"];
 const messages = {
   en: {
     brandTagline: "The ward is watching.",
+    dashboard: "Dashboard",
+    findings: "Findings",
+    ignored: "Ignored",
+    settings: "Settings",
     project: "Project",
     name: "Name",
     stack: "Stack",
     path: "Path",
+    chooseFolder: "Choose folder",
     status: "Status",
-    settings: "Settings",
     language: "Language",
     localUi: "Local UI",
     title: "SentryWard",
     scan: "Run scan",
+    copySelected: "Copy selected",
+    copyAll: "Copy all findings",
+    reviewFindings: "Review findings",
+    selectAll: "Select all",
+    clear: "Clear",
+    ignoreSelected: "Ignore selected",
+    restoreSelected: "Restore selected",
+    restoreAll: "Restore all",
     score: "Security score",
     noScan: "No scan loaded yet.",
-    noFindings: "No findings in the latest scan.",
+    scanSummary: "{files} files scanned · {findings} active findings · {ignored} ignored",
+    noFindings: "No active findings.",
     runScan: "Run a scan to populate findings.",
-    findings: "Findings",
+    noIgnored: "No ignored findings.",
     total: "total",
+    ignoredTotal: "ignored",
     activity: "Activity",
     loaded: "Interface loaded.",
-    slashHint: "Type / in the composer to open commands.",
-    noSelection: "No finding selected",
-    selectFinding: "Select a finding after scanning to inspect impact, recommendation, and code context.",
-    prompt: "Type / for commands",
-    send: "Run",
-    semaEnabled: "Sema governance enabled",
-    semaDisabled: "Sema governance disabled",
+    overviewReady: "Project overview ready.",
     scanning: "Scan running...",
     scanDone: "Scan completed.",
     scanFailed: "Scan failed",
-    overviewReady: "Project overview ready.",
-    statusRefreshed: "Status refreshed.",
-    commandMenu: "Command menu",
-    commandHint: "Keep typing to filter. Tab completes. Enter runs.",
-    noCommand: "No matching command.",
-    slashOnly: "This composer runs slash commands for now. Type / to open the menu.",
-    missingFinding: "Pass a finding id, for example /explain SW-AUTH-014.",
-    findingMissing: "Finding not found in the latest scan.",
-    explaining: "Selected finding",
-    fixPlan: "Fix plans still run in the CLI",
-    closeHint: "Close the browser tab or press Ctrl+C in the terminal to stop SentryWard.",
-    languageChanged: "Language changed and saved",
-    languageInvalid: "Use /lang en, /lang pt-BR, or /lang es.",
-    focusFindings: "Findings panel focused.",
-    focusSettings: "Settings focused.",
-    home: "Top panel focused.",
-    panel: "Diagnostic panel focused.",
-    cleared: "Chat cleared.",
+    semaEnabled: "Sema governance enabled",
+    semaDisabled: "Sema governance disabled",
+    ignoredCount: "{count} ignored",
+    noSelection: "No finding selected",
+    selectFinding: "Select a finding to inspect impact, recommendation, and exact code context.",
+    codeEmpty: "Code context appears here.",
+    codeLoading: "Loading code context...",
+    codeUnavailable: "Code context unavailable.",
     file: "File",
     impact: "Impact",
     problem: "Problem",
     recommendation: "Recommendation",
     evidence: "Evidence",
-    code: "Code context",
     autoFix: "Auto-fix",
     yes: "yes",
     no: "no",
-    commands: {
-      help: "show the command menu",
-      scan: "run a scan and keep this interface open",
-      status: "refresh project status",
-      findings: "focus the findings list",
-      explain: "select one finding by id",
-      fix: "show where to run a fix plan",
-      settings: "focus settings and language options",
-      lang: "change and save language",
-      home: "return to the top panel",
-      panel: "focus the diagnostic panel",
-      clear: "clear the chat log",
-      quit: "show how to close SentryWard",
-    },
+    copyFinding: "Copy finding",
+    copyCode: "Copy code",
+    ignore: "Ignore",
+    restore: "Restore",
+    copied: "Copied to clipboard.",
+    selectedCopied: "Selected findings copied.",
+    ignoredDone: "Finding hidden. You can restore it in Ignored.",
+    restoredDone: "Finding restored.",
+    useCtrl: "Tip: hold Ctrl while clicking to select more than one.",
+    folderTitle: "Choose project folder",
+    folderOpen: "Open",
+    folderParent: "Parent",
+    folderUse: "Use this folder",
+    folderChanged: "Project folder changed.",
+    folderFailed: "Could not open folder",
+    folderEmpty: "No child folders here.",
+    languageCopy: "Change the local UI language.",
+    projectCopy: "Switch the active local project without restarting SentryWard.",
+    governanceCopy: "Sema remains optional and appears when the project opts into governance.",
+    languageChanged: "Language changed and saved.",
   },
   "pt-BR": {
     brandTagline: "A ward est\u00e1 observando.",
+    dashboard: "Dashboard",
+    findings: "Achados",
+    ignored: "Ignorados",
+    settings: "Ajustes",
     project: "Projeto",
     name: "Nome",
     stack: "Stack",
     path: "Caminho",
+    chooseFolder: "Escolher pasta",
     status: "Status",
-    settings: "Ajustes",
     language: "Idioma",
     localUi: "Interface local",
     title: "SentryWard",
     scan: "Rodar scan",
+    copySelected: "Copiar selecionados",
+    copyAll: "Copiar todos os achados",
+    reviewFindings: "Revisar achados",
+    selectAll: "Selecionar todos",
+    clear: "Limpar",
+    ignoreSelected: "Ignorar selecionados",
+    restoreSelected: "Restaurar selecionados",
+    restoreAll: "Restaurar todos",
     score: "Pontua\u00e7\u00e3o de seguran\u00e7a",
     noScan: "Nenhum scan carregado ainda.",
-    noFindings: "Nenhum achado no \u00faltimo scan.",
+    scanSummary: "{files} arquivos analisados · {findings} achados ativos · {ignored} ignorados",
+    noFindings: "Nenhum achado ativo.",
     runScan: "Rode um scan para preencher achados.",
-    findings: "Achados",
+    noIgnored: "Nenhum achado ignorado.",
     total: "total",
+    ignoredTotal: "ignorados",
     activity: "Atividade",
     loaded: "Interface carregada.",
-    slashHint: "Digite / no compositor para abrir comandos.",
-    noSelection: "Nenhum achado selecionado",
-    selectFinding: "Selecione um achado depois do scan para inspecionar impacto, recomenda\u00e7\u00e3o e contexto de c\u00f3digo.",
-    prompt: "Digite / para comandos",
-    send: "Rodar",
+    overviewReady: "Resumo do projeto pronto.",
+    scanning: "Scan rodando...",
+    scanDone: "Scan conclu\u00eddo.",
+    scanFailed: "Scan falhou",
     semaEnabled: "Governan\u00e7a Sema ativada",
     semaDisabled: "Governan\u00e7a Sema desativada",
-    scanning: "Scan rodando...",
-    scanDone: "Scan concluido.",
-    scanFailed: "Scan falhou",
-    overviewReady: "Resumo do projeto pronto.",
-    statusRefreshed: "Status atualizado.",
-    commandMenu: "Menu de comandos",
-    commandHint: "Continue digitando para filtrar. Tab completa. Enter roda.",
-    noCommand: "Nenhum comando encontrado.",
-    slashOnly: "Por enquanto este compositor roda comandos slash. Digite / para abrir o menu.",
-    missingFinding: "Passe um id de achado, por exemplo /explain SW-AUTH-014.",
-    findingMissing: "Achado n\u00e3o encontrado no \u00faltimo scan.",
-    explaining: "Achado selecionado",
-    fixPlan: "Planos de corre\u00e7\u00e3o ainda rodam na CLI",
-    closeHint: "Feche a aba do navegador ou pressione Ctrl+C no terminal para parar o SentryWard.",
-    languageChanged: "Idioma alterado e salvo",
-    languageInvalid: "Use /lang en, /lang pt-BR ou /lang es.",
-    focusFindings: "Painel de achados focado.",
-    focusSettings: "Ajustes focados.",
-    home: "Painel superior focado.",
-    panel: "Painel diagn\u00f3stico focado.",
-    cleared: "Chat limpo.",
+    ignoredCount: "{count} ignorados",
+    noSelection: "Nenhum achado selecionado",
+    selectFinding: "Selecione um achado para inspecionar impacto, recomenda\u00e7\u00e3o e contexto exato do c\u00f3digo.",
+    codeEmpty: "O contexto de c\u00f3digo aparece aqui.",
+    codeLoading: "Carregando contexto de c\u00f3digo...",
+    codeUnavailable: "Contexto de c\u00f3digo indispon\u00edvel.",
     file: "Arquivo",
     impact: "Impacto",
     problem: "Problema",
     recommendation: "Recomenda\u00e7\u00e3o",
     evidence: "Evid\u00eancia",
-    code: "Contexto de c\u00f3digo",
     autoFix: "Auto-corre\u00e7\u00e3o",
     yes: "sim",
     no: "n\u00e3o",
-    commands: {
-      help: "mostra o menu de comandos",
-      scan: "roda um scan e mant\u00e9m esta interface aberta",
-      status: "atualiza o status do projeto",
-      findings: "foca a lista de achados",
-      explain: "seleciona um achado pelo id",
-      fix: "mostra onde rodar um plano de corre\u00e7\u00e3o",
-      settings: "foca ajustes e op\u00e7\u00f5es de idioma",
-      lang: "muda e salva o idioma",
-      home: "volta para o painel superior",
-      panel: "foca o painel diagn\u00f3stico",
-      clear: "limpa o chat",
-      quit: "mostra como fechar o SentryWard",
-    },
+    copyFinding: "Copiar achado",
+    copyCode: "Copiar c\u00f3digo",
+    ignore: "Ignorar",
+    restore: "Restaurar",
+    copied: "Copiado para a \u00e1rea de transfer\u00eancia.",
+    selectedCopied: "Achados selecionados copiados.",
+    ignoredDone: "Achado ocultado. D\u00e1 para restaurar em Ignorados.",
+    restoredDone: "Achado restaurado.",
+    useCtrl: "Dica: segure Ctrl ao clicar para selecionar mais de um.",
+    folderTitle: "Escolher pasta do projeto",
+    folderOpen: "Abrir",
+    folderParent: "Pasta acima",
+    folderUse: "Usar esta pasta",
+    folderChanged: "Pasta do projeto alterada.",
+    folderFailed: "N\u00e3o foi poss\u00edvel abrir a pasta",
+    folderEmpty: "N\u00e3o h\u00e1 subpastas aqui.",
+    languageCopy: "Altere o idioma da interface local.",
+    projectCopy: "Troque o projeto local ativo sem reiniciar o SentryWard.",
+    governanceCopy: "Sema continua opcional e aparece quando o projeto escolhe governan\u00e7a.",
+    languageChanged: "Idioma alterado e salvo.",
   },
   es: {
     brandTagline: "La ward est\u00e1 observando.",
+    dashboard: "Dashboard",
+    findings: "Hallazgos",
+    ignored: "Ignorados",
+    settings: "Ajustes",
     project: "Proyecto",
     name: "Nombre",
     stack: "Stack",
     path: "Ruta",
+    chooseFolder: "Elegir carpeta",
     status: "Estado",
-    settings: "Ajustes",
     language: "Idioma",
     localUi: "Interfaz local",
     title: "SentryWard",
     scan: "Ejecutar scan",
+    copySelected: "Copiar seleccionados",
+    copyAll: "Copiar todos los hallazgos",
+    reviewFindings: "Revisar hallazgos",
+    selectAll: "Seleccionar todos",
+    clear: "Limpiar",
+    ignoreSelected: "Ignorar seleccionados",
+    restoreSelected: "Restaurar seleccionados",
+    restoreAll: "Restaurar todos",
     score: "Puntuaci\u00f3n de seguridad",
     noScan: "No hay scan cargado todav\u00eda.",
-    noFindings: "No hay hallazgos en el \u00faltimo scan.",
+    scanSummary: "{files} archivos analizados · {findings} hallazgos activos · {ignored} ignorados",
+    noFindings: "No hay hallazgos activos.",
     runScan: "Ejecuta un scan para llenar hallazgos.",
-    findings: "Hallazgos",
+    noIgnored: "No hay hallazgos ignorados.",
     total: "total",
+    ignoredTotal: "ignorados",
     activity: "Actividad",
     loaded: "Interfaz cargada.",
-    slashHint: "Escribe / en el compositor para abrir comandos.",
-    noSelection: "Ningun hallazgo seleccionado",
-    selectFinding: "Selecciona un hallazgo despu\u00e9s del scan para revisar impacto, recomendaci\u00f3n y contexto de c\u00f3digo.",
-    prompt: "Escribe / para comandos",
-    send: "Ejecutar",
-    semaEnabled: "Gobernanza Sema activada",
-    semaDisabled: "Gobernanza Sema desactivada",
+    overviewReady: "Resumen del proyecto listo.",
     scanning: "Scan en ejecuci\u00f3n...",
     scanDone: "Scan completado.",
     scanFailed: "Scan fall\u00f3",
-    overviewReady: "Resumen del proyecto listo.",
-    statusRefreshed: "Estado actualizado.",
-    commandMenu: "Men\u00fa de comandos",
-    commandHint: "Sigue escribiendo para filtrar. Tab completa. Enter ejecuta.",
-    noCommand: "No hay comandos coincidentes.",
-    slashOnly: "Por ahora este compositor ejecuta comandos slash. Escribe / para abrir el men\u00fa.",
-    missingFinding: "Pasa un id de hallazgo, por ejemplo /explain SW-AUTH-014.",
-    findingMissing: "Hallazgo no encontrado en el \u00faltimo scan.",
-    explaining: "Hallazgo seleccionado",
-    fixPlan: "Los planes de correcci\u00f3n todav\u00eda corren en la CLI",
-    closeHint: "Cierra la pesta\u00f1a del navegador o presiona Ctrl+C en la terminal para detener SentryWard.",
-    languageChanged: "Idioma cambiado y guardado",
-    languageInvalid: "Usa /lang en, /lang pt-BR o /lang es.",
-    focusFindings: "Panel de hallazgos enfocado.",
-    focusSettings: "Ajustes enfocados.",
-    home: "Panel superior enfocado.",
-    panel: "Panel diagn\u00f3stico enfocado.",
-    cleared: "Chat limpio.",
+    semaEnabled: "Gobernanza Sema activada",
+    semaDisabled: "Gobernanza Sema desactivada",
+    ignoredCount: "{count} ignorados",
+    noSelection: "Ningun hallazgo seleccionado",
+    selectFinding: "Selecciona un hallazgo para revisar impacto, recomendaci\u00f3n y contexto exacto del c\u00f3digo.",
+    codeEmpty: "El contexto de c\u00f3digo aparece aqu\u00ed.",
+    codeLoading: "Cargando contexto de c\u00f3digo...",
+    codeUnavailable: "Contexto de c\u00f3digo no disponible.",
     file: "Archivo",
     impact: "Impacto",
     problem: "Problema",
     recommendation: "Recomendaci\u00f3n",
     evidence: "Evidencia",
-    code: "Contexto de c\u00f3digo",
     autoFix: "Auto-correcci\u00f3n",
     yes: "s\u00ed",
     no: "no",
-    commands: {
-      help: "muestra el men\u00fa de comandos",
-      scan: "ejecuta un scan y mantiene esta interfaz abierta",
-      status: "actualiza el estado del proyecto",
-      findings: "enfoca la lista de hallazgos",
-      explain: "selecciona un hallazgo por id",
-      fix: "muestra donde ejecutar un plan de correccion",
-      settings: "enfoca ajustes y opciones de idioma",
-      lang: "cambia y guarda el idioma",
-      home: "vuelve al panel superior",
-      panel: "enfoca el panel diagn\u00f3stico",
-      clear: "limpia el chat",
-      quit: "muestra c\u00f3mo cerrar SentryWard",
-    },
+    copyFinding: "Copiar hallazgo",
+    copyCode: "Copiar c\u00f3digo",
+    ignore: "Ignorar",
+    restore: "Restaurar",
+    copied: "Copiado al portapapeles.",
+    selectedCopied: "Hallazgos seleccionados copiados.",
+    ignoredDone: "Hallazgo ocultado. Puedes restaurarlo en Ignorados.",
+    restoredDone: "Hallazgo restaurado.",
+    useCtrl: "Tip: mant\u00e9n Ctrl al hacer clic para seleccionar m\u00e1s de uno.",
+    folderTitle: "Elegir carpeta del proyecto",
+    folderOpen: "Abrir",
+    folderParent: "Carpeta superior",
+    folderUse: "Usar esta carpeta",
+    folderChanged: "Carpeta del proyecto cambiada.",
+    folderFailed: "No se pudo abrir la carpeta",
+    folderEmpty: "No hay subcarpetas aqu\u00ed.",
+    languageCopy: "Cambia el idioma de la interfaz local.",
+    projectCopy: "Cambia el proyecto local activo sin reiniciar SentryWard.",
+    governanceCopy: "Sema sigue opcional y aparece cuando el proyecto elige gobernanza.",
+    languageChanged: "Idioma cambiado y guardado.",
   },
 };
 
@@ -229,80 +239,100 @@ const severityLabels = {
 
 const state = {
   language: "en",
+  activeTab: "dashboard",
   overview: undefined,
   findings: [],
-  selectedFindingId: undefined,
-  activeCommandIndex: 0,
-  chat: [],
+  selectedFindingKey: undefined,
+  selectedIds: new Set(),
+  ignoredKeys: new Set(),
   activity: [],
+  source: undefined,
+  folder: undefined,
 };
 
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => [...document.querySelectorAll(selector)];
+
 const elements = {
-  brandTagline: document.querySelector(".brand p"),
-  projectHeading: document.querySelector(".side-section:nth-of-type(1) h2"),
-  statusHeading: document.querySelector(".side-section:nth-of-type(2) h2"),
-  settingsHeading: document.querySelector(".side-section:nth-of-type(3) h2"),
-  languageLabel: document.querySelector("label[for='language-select']"),
-  projectNameLabel: document.querySelector(".meta-list div:nth-child(1) span"),
-  projectStackLabel: document.querySelector(".meta-list div:nth-child(2) span"),
-  projectRootLabel: document.querySelector(".meta-list div:nth-child(3) span"),
-  projectName: document.querySelector("#project-name"),
-  projectStack: document.querySelector("#project-stack"),
-  projectRoot: document.querySelector("#project-root"),
-  watchState: document.querySelector("#watch-state"),
-  semaState: document.querySelector("#sema-state"),
-  languageSelect: document.querySelector("#language-select"),
-  title: document.querySelector(".topbar h1"),
-  eyeline: document.querySelector(".eyeline"),
-  scanButton: document.querySelector("#scan-button"),
-  settingsButton: document.querySelector("#settings-button"),
-  scoreTitle: document.querySelector(".score-panel h2"),
-  scoreRing: document.querySelector("#score-ring"),
-  scoreValue: document.querySelector("#score-value"),
-  scanSummary: document.querySelector("#scan-summary"),
-  severityTitle: document.querySelector(".severity-panel h2"),
-  activityTitle: document.querySelector(".timeline-panel h2"),
-  activityList: document.querySelector("#activity-list"),
-  findingListTitle: document.querySelector(".findings-list-panel h2"),
-  findingTotal: document.querySelector("#finding-total"),
-  findingsList: document.querySelector("#findings-list"),
-  findingDetail: document.querySelector("#finding-detail"),
-  commandPalette: document.querySelector("#command-palette"),
-  commandInput: document.querySelector("#command-input"),
-  sendCommand: document.querySelector("#send-command"),
-  chatLog: document.querySelector("#chat-log"),
+  navTabs: $$(".nav-tab"),
+  brandTagline: $("#brand-tagline"),
+  projectHeading: $("#project-heading"),
+  projectNameLabel: $("#project-name-label"),
+  projectStackLabel: $("#project-stack-label"),
+  projectRootLabel: $("#project-root-label"),
+  projectName: $("#project-name"),
+  projectStack: $("#project-stack"),
+  projectRoot: $("#project-root"),
+  folderButton: $("#folder-button"),
+  statusHeading: $("#status-heading"),
+  watchState: $("#watch-state"),
+  semaState: $("#sema-state"),
+  ignoredState: $("#ignored-state"),
+  settingsHeading: $("#settings-heading"),
+  languageLabel: $("#language-label"),
+  languageSelect: $("#language-select"),
+  settingsLanguageSelect: $("#settings-language-select"),
+  pageTitle: $("#page-title"),
+  eyeline: $("#eyeline"),
+  scanButton: $("#scan-button"),
+  copySelectedButton: $("#copy-selected-button"),
+  settingsButton: $("#settings-button"),
+  scoreTitle: $("#score-title"),
+  scoreRing: $("#score-ring"),
+  scoreValue: $("#score-value"),
+  scanSummary: $("#scan-summary"),
+  severityTitle: $("#severity-title"),
+  activityTitle: $("#activity-title"),
+  activityList: $("#activity-list"),
+  findingsTitle: $("#findings-title"),
+  findingTotal: $("#finding-total"),
+  findingsList: $("#findings-list"),
+  findingDetail: $("#finding-detail"),
+  codePanel: $("#code-panel"),
+  selectVisibleButton: $("#select-visible-button"),
+  clearSelectionButton: $("#clear-selection-button"),
+  ignoreSelectedButton: $("#ignore-selected-button"),
+  copyFindingButton: $("#copy-finding-button"),
+  copyCodeButton: $("#copy-code-button"),
+  ignoreCurrentButton: $("#ignore-current-button"),
+  ignoredTitle: $("#ignored-title"),
+  ignoredTotal: $("#ignored-total"),
+  ignoredList: $("#ignored-list"),
+  restoreSelectedButton: $("#restore-selected-button"),
+  restoreAllButton: $("#restore-all-button"),
+  settingsLanguageTitle: $("#settings-language-title"),
+  settingsLanguageCopy: $("#settings-language-copy"),
+  settingsProjectTitle: $("#settings-project-title"),
+  settingsProjectCopy: $("#settings-project-copy"),
+  settingsFolderButton: $("#settings-folder-button"),
+  settingsGovernanceTitle: $("#settings-governance-title"),
+  settingsGovernanceCopy: $("#settings-governance-copy"),
+  settingsSemaState: $("#settings-sema-state"),
+  folderModal: $("#folder-modal"),
+  folderTitle: $("#folder-title"),
+  folderCurrent: $("#folder-current"),
+  folderClose: $("#folder-close"),
+  folderPathInput: $("#folder-path-input"),
+  folderGo: $("#folder-go"),
+  folderDrives: $("#folder-drives"),
+  folderError: $("#folder-error"),
+  folderList: $("#folder-list"),
+  folderUp: $("#folder-up"),
+  folderSelect: $("#folder-select"),
+  toast: $("#toast"),
 };
 
 function msg() {
   return messages[state.language] ?? messages.en;
 }
 
+function t(key, params = {}) {
+  const template = msg()[key] ?? messages.en[key] ?? key;
+  return Object.entries(params).reduce((text, [name, value]) => text.replaceAll(`{${name}}`, String(value)), template);
+}
+
 function severityName(severity) {
   return (severityLabels[state.language] ?? severityLabels.en)[severity] ?? severity;
-}
-
-function commands() {
-  const text = msg().commands;
-  return [
-    { usage: "/help", name: "help", description: text.help },
-    { usage: "/scan [path]", name: "scan", complete: "/scan ", description: text.scan },
-    { usage: "/status", name: "status", description: text.status },
-    { usage: "/findings", name: "findings", description: text.findings },
-    { usage: "/explain <id>", name: "explain", complete: "/explain ", description: text.explain },
-    { usage: "/fix <id>", name: "fix", complete: "/fix ", description: text.fix },
-    { usage: "/settings", name: "settings", description: text.settings },
-    { usage: "/lang <en|pt-BR|es>", name: "lang", complete: "/lang ", description: text.lang },
-    { usage: "/home", name: "home", description: text.home },
-    { usage: "/panel", name: "panel", description: text.panel },
-    { usage: "/clear", name: "clear", description: text.clear },
-    { usage: "/quit", name: "quit", description: text.quit },
-  ];
-}
-
-function setText(element, value) {
-  if (element) {
-    element.textContent = value;
-  }
 }
 
 function escapeHtml(value) {
@@ -314,17 +344,60 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-function formatStack(project) {
-  return project?.stack?.length ? project.stack.join(" \u00b7 ") : "unknown";
+function setText(element, value) {
+  if (element) element.textContent = value;
 }
 
-function countsFrom(data) {
-  const counts = data?.counts ?? {};
-  return Object.fromEntries(severityOrder.map((severity) => [severity, Number(counts[severity] ?? 0)]));
+function formatStack(project) {
+  return project?.stack?.length ? project.stack.join(" · ") : "unknown";
 }
 
 function currentScan() {
   return state.overview?.scan;
+}
+
+function projectRoot() {
+  return state.overview?.project?.root ?? "";
+}
+
+function findingKey(finding) {
+  if (!finding) return undefined;
+  return finding?.fingerprint || `${finding?.id}:${finding?.file}:${finding?.line}`;
+}
+
+function ignoredStorageKey() {
+  return `sentryward.ignored.v2.${projectRoot()}`;
+}
+
+function loadIgnoredState() {
+  try {
+    state.ignoredKeys = new Set(JSON.parse(localStorage.getItem(ignoredStorageKey()) ?? "[]"));
+  } catch {
+    state.ignoredKeys = new Set();
+  }
+}
+
+function saveIgnoredState() {
+  localStorage.setItem(ignoredStorageKey(), JSON.stringify([...state.ignoredKeys]));
+}
+
+function activeFindings() {
+  return state.findings.filter((finding) => !state.ignoredKeys.has(findingKey(finding)));
+}
+
+function ignoredFindings() {
+  return state.findings.filter((finding) => state.ignoredKeys.has(findingKey(finding)));
+}
+
+function sortedFindings(findings) {
+  return [...findings].sort((a, b) => {
+    const rank = severityOrder.indexOf(a.severity) - severityOrder.indexOf(b.severity);
+    return rank || a.id.localeCompare(b.id) || a.file.localeCompare(b.file);
+  });
+}
+
+function countsFrom(findings) {
+  return Object.fromEntries(severityOrder.map((severity) => [severity, findings.filter((item) => item.severity === severity).length]));
 }
 
 async function requestJson(path, options = {}) {
@@ -339,233 +412,401 @@ async function requestJson(path, options = {}) {
   return data;
 }
 
+function toast(message) {
+  setText(elements.toast, message);
+  elements.toast.hidden = false;
+  window.clearTimeout(toast.timer);
+  toast.timer = window.setTimeout(() => {
+    elements.toast.hidden = true;
+  }, 2600);
+}
+
 function addActivity(line) {
   state.activity = [line, ...state.activity].slice(0, 6);
   renderActivity();
 }
 
-function addChat(line) {
-  state.chat = [line, ...state.chat].slice(0, 8);
-  renderChat();
-}
-
 function renderStaticCopy() {
-  const text = msg();
   document.documentElement.lang = state.language;
-  setText(elements.brandTagline, text.brandTagline);
-  setText(elements.projectHeading, text.project);
-  setText(elements.statusHeading, text.status);
-  setText(elements.settingsHeading, text.settings);
-  setText(elements.languageLabel, text.language);
-  setText(elements.projectNameLabel, text.name);
-  setText(elements.projectStackLabel, text.stack);
-  setText(elements.projectRootLabel, text.path);
-  setText(elements.watchState, text.localUi);
-  setText(elements.title, text.title);
-  setText(elements.eyeline, text.localUi);
-  setText(elements.scanButton, text.scan);
-  setText(elements.settingsButton, text.settings);
-  setText(elements.scoreTitle, text.score);
-  setText(elements.severityTitle, text.findings);
-  setText(elements.activityTitle, text.activity);
-  setText(elements.findingListTitle, text.findings);
-  setText(elements.sendCommand, text.send);
-  elements.commandInput.placeholder = text.prompt;
-  for (const severity of severityOrder) {
-    const label = document.querySelector(`.severity-row.${severity} span`);
-    setText(label, severityName(severity));
-  }
+  setText(elements.brandTagline, t("brandTagline"));
+  elements.navTabs.forEach((tab) => setText(tab, t(tab.dataset.tab)));
+  setText(elements.projectHeading, t("project"));
+  setText(elements.projectNameLabel, t("name"));
+  setText(elements.projectStackLabel, t("stack"));
+  setText(elements.projectRootLabel, t("path"));
+  setText(elements.folderButton, t("chooseFolder"));
+  setText(elements.statusHeading, t("status"));
+  setText(elements.watchState, t("localUi"));
+  setText(elements.settingsHeading, t("settings"));
+  setText(elements.languageLabel, t("language"));
+  setText(elements.pageTitle, t("title"));
+  setText(elements.eyeline, t("localUi"));
+  setText(elements.scanButton, t("scan"));
+  setText(elements.copySelectedButton, t("copySelected"));
+  setText(elements.settingsButton, t("settings"));
+  setText(elements.scoreTitle, t("score"));
+  setText(elements.severityTitle, t("findings"));
+  setText(elements.activityTitle, t("activity"));
+  setText(elements.findingsTitle, t("findings"));
+  setText(elements.selectVisibleButton, t("selectAll"));
+  setText(elements.clearSelectionButton, t("clear"));
+  setText(elements.ignoreSelectedButton, t("ignoreSelected"));
+  setText(elements.copyFindingButton, t("copyFinding"));
+  setText(elements.copyCodeButton, t("copyCode"));
+  setText(elements.ignoredTitle, t("ignored"));
+  setText(elements.restoreSelectedButton, t("restoreSelected"));
+  setText(elements.restoreAllButton, t("restoreAll"));
+  setText(elements.settingsLanguageTitle, t("language"));
+  setText(elements.settingsLanguageCopy, t("languageCopy"));
+  setText(elements.settingsProjectTitle, t("chooseFolder"));
+  setText(elements.settingsProjectCopy, t("projectCopy"));
+  setText(elements.settingsFolderButton, t("chooseFolder"));
+  setText(elements.settingsGovernanceTitle, "Sema");
+  setText(elements.settingsGovernanceCopy, t("governanceCopy"));
+  setText(elements.folderTitle, t("folderTitle"));
+  setText(elements.folderGo, t("folderOpen"));
+  setText(elements.folderUp, t("folderParent"));
+  setText(elements.folderSelect, t("folderUse"));
+  $$("[data-tab-target='findings']").forEach((button) => setText(button, t("reviewFindings")));
+  $$("[data-action='copy-all']").forEach((button) => setText(button, t("copyAll")));
+  $$("[data-action='select-all']").forEach((button) => setText(button, t("selectAll")));
+  severityOrder.forEach((severity) => setText($(`.severity-row.${severity} span`), severityName(severity)));
 }
 
 function renderActivity() {
-  const text = msg();
-  const items = state.activity.length ? state.activity : [text.loaded, text.slashHint];
+  const items = state.activity.length ? state.activity : [t("loaded")];
   elements.activityList.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 }
 
-function renderChat() {
-  elements.chatLog.innerHTML = state.chat.map((item) => `<div class="chat-line">${escapeHtml(item)}</div>`).join("");
+function renderTabs() {
+  elements.navTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === state.activeTab));
+  $$("[data-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === state.activeTab));
+}
+
+function setActiveTab(tab) {
+  state.activeTab = tab;
+  renderTabs();
+}
+
+function syncSelectionToExistingFindings() {
+  const existing = new Set(state.findings.map(findingKey));
+  state.selectedIds = new Set([...state.selectedIds].filter((id) => existing.has(id)));
+  if (!existing.has(state.selectedFindingKey)) {
+    state.selectedFindingKey = findingKey(activeFindings()[0] ?? ignoredFindings()[0]);
+  }
 }
 
 function renderOverview() {
-  const text = msg();
   const overview = state.overview;
   const project = overview?.project;
   const scan = currentScan();
-  const counts = countsFrom(overview);
-
   state.language = overview?.language ?? state.language;
   elements.languageSelect.value = state.language;
+  elements.settingsLanguageSelect.value = state.language;
   renderStaticCopy();
 
   setText(elements.projectName, project?.name ?? "unknown");
   setText(elements.projectStack, formatStack(project));
   setText(elements.projectRoot, project?.root ?? "");
-  setText(elements.semaState, overview?.config?.sema?.enabled ? text.semaEnabled : text.semaDisabled);
-  elements.semaState.classList.toggle("safe", Boolean(overview?.config?.sema?.enabled));
 
+  const semaText = overview?.config?.sema?.enabled ? t("semaEnabled") : t("semaDisabled");
+  setText(elements.semaState, semaText);
+  setText(elements.settingsSemaState, semaText);
+  elements.semaState.classList.toggle("safe", Boolean(overview?.config?.sema?.enabled));
+  elements.settingsSemaState.classList.toggle("safe", Boolean(overview?.config?.sema?.enabled));
+
+  const active = activeFindings();
+  const ignored = ignoredFindings();
+  const counts = countsFrom(active);
   const score = Number(scan?.score ?? 100);
   elements.scoreRing.style.setProperty("--score", String(score));
   setText(elements.scoreValue, String(score));
   setText(
     elements.scanSummary,
-    scan ? `${scan.scannedFiles} files scanned \u00b7 ${scan.findings.length} ${text.findings.toLowerCase()}` : text.noScan,
+    scan ? t("scanSummary", { files: scan.scannedFiles, findings: active.length, ignored: ignored.length }) : t("noScan"),
   );
+  setText(elements.ignoredState, t("ignoredCount", { count: ignored.length }));
+  severityOrder.forEach((severity) => setText($(`#count-${severity}`), String(counts[severity])));
 
-  for (const severity of severityOrder) {
-    setText(document.querySelector(`#count-${severity}`), String(counts[severity]));
-  }
-
-  state.findings = Array.isArray(scan?.findings) ? scan.findings : [];
+  syncSelectionToExistingFindings();
   renderFindings();
+  renderIgnored();
+  renderSelectionActions();
+}
+
+function renderSelectionActions() {
+  const selectedCount = state.selectedIds.size;
+  elements.copySelectedButton.disabled = selectedCount === 0;
+  elements.ignoreSelectedButton.disabled = selectedCount === 0;
+  elements.restoreSelectedButton.disabled = selectedCount === 0;
+  elements.clearSelectionButton.disabled = selectedCount === 0;
+}
+
+function findingByKey(key) {
+  return state.findings.find((finding) => findingKey(finding) === key);
+}
+
+function renderFindingRow(finding, ignored = false) {
+  const key = findingKey(finding);
+  const checked = state.selectedIds.has(key) ? "checked" : "";
+  const active = key === state.selectedFindingKey ? "active" : "";
+  const selected = state.selectedIds.has(key) ? "selected" : "";
+  return `
+    <button class="finding-row ${active} ${selected}" type="button" data-finding-key="${escapeHtml(key)}" data-ignored="${ignored ? "1" : "0"}">
+      <input type="checkbox" ${checked} aria-label="Select ${escapeHtml(finding.id)}" />
+      <span class="severity-badge ${escapeHtml(finding.severity)}">${escapeHtml(severityName(finding.severity))}</span>
+      <span>
+        <span class="finding-id">${escapeHtml(finding.id)}</span>
+        <strong>${escapeHtml(finding.title)}</strong>
+        <small>${escapeHtml(finding.file)}:${escapeHtml(finding.line)}</small>
+      </span>
+    </button>
+  `;
+}
+
+function bindFindingRows(container) {
+  container.querySelectorAll("[data-finding-key]").forEach((row) => {
+    const key = row.getAttribute("data-finding-key");
+    const checkbox = row.querySelector("input");
+    checkbox.addEventListener("click", (event) => {
+      event.stopPropagation();
+      toggleSelection(key, true);
+    });
+    row.addEventListener("click", (event) => {
+      selectFinding(key, event.ctrlKey || event.metaKey);
+    });
+  });
 }
 
 function renderFindings() {
-  const text = msg();
-  const findings = [...state.findings].sort((a, b) => {
-    const rank = severityOrder.indexOf(a.severity) - severityOrder.indexOf(b.severity);
-    return rank || a.id.localeCompare(b.id);
-  });
-  const selectedExists = findings.some((finding) => finding.id === state.selectedFindingId);
-  if (!selectedExists) {
-    state.selectedFindingId = findings[0]?.id;
-  }
-
-  setText(elements.findingTotal, `${findings.length} ${text.total}`);
+  const findings = sortedFindings(activeFindings());
+  setText(elements.findingTotal, `${findings.length} ${t("total")} · ${t("useCtrl")}`);
   if (findings.length === 0) {
     elements.findingsList.className = "findings-list empty";
-    elements.findingsList.textContent = currentScan() ? text.noFindings : text.runScan;
+    elements.findingsList.textContent = currentScan() ? t("noFindings") : t("runScan");
     renderFindingDetail(undefined);
     return;
   }
 
-  elements.findingsList.className = "findings-list";
-  elements.findingsList.innerHTML = findings
-    .map(
-      (finding) => `
-        <button class="finding-row ${finding.id === state.selectedFindingId ? "active" : ""}" type="button" data-finding-id="${escapeHtml(finding.id)}">
-          <span class="severity-badge ${escapeHtml(finding.severity)}">${escapeHtml(severityName(finding.severity))}</span>
-          <span>
-            <span class="finding-id">${escapeHtml(finding.id)}</span>
-            <strong>${escapeHtml(finding.title)}</strong>
-            <small>${escapeHtml(finding.file)}:${escapeHtml(finding.line)}</small>
-          </span>
-        </button>
-      `,
-    )
-    .join("");
-  for (const row of elements.findingsList.querySelectorAll("[data-finding-id]")) {
-    row.addEventListener("click", () => {
-      state.selectedFindingId = row.getAttribute("data-finding-id");
-      renderFindings();
-    });
+  if (!state.selectedFindingKey || state.ignoredKeys.has(state.selectedFindingKey)) {
+    state.selectedFindingKey = findingKey(findings[0]);
   }
-  renderFindingDetail(findings.find((finding) => finding.id === state.selectedFindingId));
+  elements.findingsList.className = "findings-list";
+  elements.findingsList.innerHTML = findings.map((finding) => renderFindingRow(finding)).join("");
+  bindFindingRows(elements.findingsList);
+  renderFindingDetail(findingByKey(state.selectedFindingKey));
+}
+
+function renderIgnored() {
+  const findings = sortedFindings(ignoredFindings());
+  setText(elements.ignoredTotal, `${findings.length} ${t("ignoredTotal")}`);
+  if (findings.length === 0) {
+    elements.ignoredList.className = "findings-list empty";
+    elements.ignoredList.textContent = t("noIgnored");
+    return;
+  }
+  elements.ignoredList.className = "findings-list";
+  elements.ignoredList.innerHTML = findings.map((finding) => renderFindingRow(finding, true)).join("");
+  bindFindingRows(elements.ignoredList);
 }
 
 function renderFindingDetail(finding) {
-  const text = msg();
   if (!finding) {
     elements.findingDetail.className = "finding-detail empty";
-    elements.findingDetail.innerHTML = `<h2>${escapeHtml(text.noSelection)}</h2><p>${escapeHtml(text.selectFinding)}</p>`;
+    elements.findingDetail.innerHTML = `<h2>${escapeHtml(t("noSelection"))}</h2><p>${escapeHtml(t("selectFinding"))}</p>`;
+    elements.codePanel.className = "code-panel empty";
+    elements.codePanel.textContent = t("codeEmpty");
+    elements.copyFindingButton.disabled = true;
+    elements.copyCodeButton.disabled = true;
+    elements.ignoreCurrentButton.disabled = true;
     return;
   }
 
+  elements.copyFindingButton.disabled = false;
+  elements.copyCodeButton.disabled = !state.source;
+  elements.ignoreCurrentButton.disabled = false;
+  setText(elements.ignoreCurrentButton, state.ignoredKeys.has(findingKey(finding)) ? t("restore") : t("ignore"));
   elements.findingDetail.className = "finding-detail";
   elements.findingDetail.innerHTML = `
     <span class="severity-badge ${escapeHtml(finding.severity)}">${escapeHtml(severityName(finding.severity))}</span>
     <h2>${escapeHtml(finding.title)}</h2>
-    <p>${escapeHtml(finding.id)} \u00b7 ${escapeHtml(finding.ruleId ?? finding.category)}</p>
+    <p>${escapeHtml(finding.id)} · ${escapeHtml(finding.ruleId ?? finding.category)}</p>
     <dl>
-      <div><dt>${escapeHtml(text.file)}</dt><dd>${escapeHtml(finding.file)}:${escapeHtml(finding.line)}</dd></div>
-      <div><dt>${escapeHtml(text.problem)}</dt><dd>${escapeHtml(finding.problem)}</dd></div>
-      <div><dt>${escapeHtml(text.impact)}</dt><dd>${escapeHtml(finding.impact)}</dd></div>
-      <div><dt>${escapeHtml(text.recommendation)}</dt><dd>${escapeHtml(finding.recommendation)}</dd></div>
-      <div><dt>${escapeHtml(text.evidence)}</dt><dd>${escapeHtml(finding.evidence)}</dd></div>
-      <div><dt>${escapeHtml(text.autoFix)}</dt><dd>${finding.autoFixSafe ? text.yes : text.no}</dd></div>
+      <div><dt>${escapeHtml(t("file"))}</dt><dd>${escapeHtml(finding.file)}:${escapeHtml(finding.line)}</dd></div>
+      <div><dt>${escapeHtml(t("problem"))}</dt><dd>${escapeHtml(finding.problem)}</dd></div>
+      <div><dt>${escapeHtml(t("impact"))}</dt><dd>${escapeHtml(finding.impact)}</dd></div>
+      <div><dt>${escapeHtml(t("recommendation"))}</dt><dd>${escapeHtml(finding.recommendation)}</dd></div>
+      <div><dt>${escapeHtml(t("evidence"))}</dt><dd>${escapeHtml(finding.evidence)}</dd></div>
+      <div><dt>${escapeHtml(t("autoFix"))}</dt><dd>${finding.autoFixSafe ? t("yes") : t("no")}</dd></div>
     </dl>
-    <code class="code-snippet">${escapeHtml(finding.evidence)}</code>
   `;
+  void loadSource(finding);
 }
 
-function filterCommands(inputValue) {
-  const raw = inputValue.trim();
-  if (!raw.startsWith("/")) {
-    return [];
-  }
-  const query = raw.slice(1).toLowerCase();
-  return commands().filter((command) => {
-    const usage = command.usage.slice(1).toLowerCase();
-    return !query || usage.startsWith(query) || command.description.toLowerCase().includes(query);
-  });
-}
-
-function showPalette(inputValue) {
-  const text = msg();
-  const matches = filterCommands(inputValue);
-  state.activeCommandIndex = Math.min(state.activeCommandIndex, Math.max(0, matches.length - 1));
-
-  if (!inputValue.startsWith("/")) {
-    elements.commandPalette.hidden = true;
-    return matches;
-  }
-
-  elements.commandPalette.hidden = false;
-  const content = matches.length
-    ? matches
-        .map(
-          (command, index) => `
-            <div class="command-item ${index === state.activeCommandIndex ? "active" : ""}" data-command-index="${index}">
-              <code>${escapeHtml(command.usage)}</code>
-              <span>${escapeHtml(command.description)}</span>
-            </div>
-          `,
-        )
-        .join("")
-    : `<div class="command-item active"><code>/help</code><span>${escapeHtml(text.noCommand)}</span></div>`;
-
-  elements.commandPalette.innerHTML = `
-    <div class="palette-heading">
-      <strong>${escapeHtml(text.commandMenu)}</strong>
-      <span>${escapeHtml(text.commandHint)}</span>
-    </div>
-    ${content}
-  `;
-  for (const item of elements.commandPalette.querySelectorAll("[data-command-index]")) {
-    item.addEventListener("mousedown", (event) => {
-      event.preventDefault();
-      completeCommand(matches[Number(item.getAttribute("data-command-index"))]);
-    });
-  }
-  return matches;
-}
-
-function completeCommand(command) {
-  if (!command) {
+function renderCodePanel() {
+  const source = state.source;
+  if (!source) {
+    elements.codePanel.className = "code-panel empty";
+    elements.codePanel.textContent = t("codeEmpty");
+    elements.copyCodeButton.disabled = true;
     return;
   }
-  const value = command.complete ?? command.usage.split(" ")[0];
-  elements.commandInput.value = value;
-  elements.commandInput.focus();
-  showPalette(value);
+  elements.codePanel.className = "code-panel";
+  elements.codePanel.innerHTML = source.lines
+    .map(
+      (line) => `
+        <div class="code-line ${line.hit ? "hit" : ""}">
+          <span class="code-line-number">${line.number}</span>
+          <span class="code-line-text">${escapeHtml(line.text || " ")}</span>
+        </div>
+      `,
+    )
+    .join("");
+  elements.copyCodeButton.disabled = false;
+}
+
+async function loadSource(finding) {
+  state.source = undefined;
+  elements.codePanel.className = "code-panel empty";
+  elements.codePanel.textContent = t("codeLoading");
+  elements.copyCodeButton.disabled = true;
+  try {
+    const data = await requestJson(`/api/source?file=${encodeURIComponent(finding.file)}&line=${encodeURIComponent(finding.line)}`);
+    if (state.selectedFindingKey === findingKey(finding)) {
+      state.source = data.source;
+      renderCodePanel();
+    }
+  } catch (error) {
+    elements.codePanel.className = "code-panel empty";
+    elements.codePanel.textContent = `${t("codeUnavailable")} ${error.message}`;
+  }
+}
+
+function toggleSelection(key, additive) {
+  if (!additive) state.selectedIds = new Set();
+  if (state.selectedIds.has(key)) {
+    state.selectedIds.delete(key);
+  } else {
+    state.selectedIds.add(key);
+  }
+  state.selectedFindingKey = key;
+  state.source = undefined;
+  renderOverview();
+}
+
+function selectFinding(key, additive = false) {
+  if (additive) {
+    toggleSelection(key, true);
+    return;
+  }
+  state.selectedIds = new Set([key]);
+  state.selectedFindingKey = key;
+  state.source = undefined;
+  renderOverview();
+}
+
+function selectAllVisible() {
+  activeFindings().forEach((finding) => state.selectedIds.add(findingKey(finding)));
+  state.selectedFindingKey = [...state.selectedIds][0] ?? state.selectedFindingKey;
+  renderOverview();
+}
+
+function clearSelection() {
+  state.selectedIds.clear();
+  renderOverview();
+}
+
+function ignoreSelected() {
+  const keys = state.selectedIds.size ? [...state.selectedIds] : state.selectedFindingKey ? [state.selectedFindingKey] : [];
+  keys.forEach((key) => state.ignoredKeys.add(key));
+  state.selectedIds.clear();
+  saveIgnoredState();
+  state.selectedFindingKey = findingKey(activeFindings()[0]);
+  addActivity(t("ignoredDone"));
+  toast(t("ignoredDone"));
+  renderOverview();
+}
+
+function restoreSelected(all = false) {
+  const keys = all ? [...state.ignoredKeys] : state.selectedIds.size ? [...state.selectedIds] : state.selectedFindingKey ? [state.selectedFindingKey] : [];
+  keys.forEach((key) => state.ignoredKeys.delete(key));
+  state.selectedIds.clear();
+  saveIgnoredState();
+  state.selectedFindingKey = keys[0] ?? findingKey(activeFindings()[0]);
+  addActivity(t("restoredDone"));
+  toast(t("restoredDone"));
+  renderOverview();
+}
+
+async function writeClipboard(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.append(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
+function sourceText() {
+  return state.source?.lines.map((line) => `${String(line.number).padStart(4, " ")} | ${line.text}`).join("\n") ?? "";
+}
+
+function formatFinding(finding, includeCode = true) {
+  const lines = [
+    `${finding.severity.toUpperCase()} ${finding.id} · ${finding.title}`,
+    `${t("file")}: ${finding.file}:${finding.line}`,
+    `${t("problem")}: ${finding.problem}`,
+    `${t("impact")}: ${finding.impact}`,
+    `${t("recommendation")}: ${finding.recommendation}`,
+    `${t("evidence")}: ${finding.evidence}`,
+  ];
+  if (includeCode && state.selectedFindingKey === findingKey(finding) && state.source) {
+    lines.push("", sourceText());
+  }
+  return lines.join("\n");
+}
+
+async function copyCurrentFinding() {
+  const finding = findingByKey(state.selectedFindingKey);
+  if (!finding) return;
+  await writeClipboard(formatFinding(finding));
+  toast(t("copied"));
+}
+
+async function copyCurrentCode() {
+  if (!state.source) return;
+  await writeClipboard(sourceText());
+  toast(t("copied"));
+}
+
+async function copySelectedFindings(all = false) {
+  const keys = all ? activeFindings().map(findingKey) : [...state.selectedIds];
+  const findings = keys.map(findingByKey).filter(Boolean);
+  if (findings.length === 0) return;
+  await writeClipboard(findings.map((finding) => formatFinding(finding, false)).join("\n\n---\n\n"));
+  toast(all ? t("copyAll") : t("selectedCopied"));
 }
 
 async function loadOverview() {
   state.overview = await requestJson("/api/overview");
   state.language = state.overview.language ?? state.language;
-  addActivity(msg().overviewReady);
+  state.findings = Array.isArray(state.overview.scan?.findings) ? state.overview.scan.findings : [];
+  loadIgnoredState();
+  addActivity(t("overviewReady"));
   renderOverview();
 }
 
-async function runScan(target) {
-  const text = msg();
+async function runScan() {
   elements.scanButton.disabled = true;
-  addActivity(text.scanning);
+  addActivity(t("scanning"));
   try {
-    const data = await requestJson("/api/scan", {
-      method: "POST",
-      body: JSON.stringify({ target: target || "." }),
-    });
+    const data = await requestJson("/api/scan", { method: "POST", body: JSON.stringify({ target: "." }) });
     state.overview = {
       ...(state.overview ?? {}),
       scan: data.scan,
@@ -573,188 +814,140 @@ async function runScan(target) {
       project: data.scan.project,
       generatedAt: data.scan.generatedAt,
     };
-    addActivity(text.scanDone);
-    addChat(`${text.scanDone} ${data.scan.findings.length} ${text.findings.toLowerCase()}.`);
+    state.findings = data.scan.findings;
+    addActivity(`${t("scanDone")} ${data.scan.findings.length} ${t("findings").toLowerCase()}.`);
     renderOverview();
   } catch (error) {
-    addActivity(`${text.scanFailed}: ${error.message}`);
-    addChat(`${text.scanFailed}: ${error.message}`);
+    addActivity(`${t("scanFailed")}: ${error.message}`);
+    toast(`${t("scanFailed")}: ${error.message}`);
   } finally {
     elements.scanButton.disabled = false;
   }
 }
 
 async function changeLanguage(language) {
-  const text = msg();
-  if (!languages.includes(language)) {
-    addChat(text.languageInvalid);
-    return;
-  }
-  const data = await requestJson("/api/language", {
-    method: "POST",
-    body: JSON.stringify({ language }),
-  });
+  if (!languages.includes(language)) return;
+  const data = await requestJson("/api/language", { method: "POST", body: JSON.stringify({ language }) });
   state.overview = data.overview;
   state.language = data.language;
-  addChat(`${messages[state.language].languageChanged}: ${state.language}`);
+  toast(t("languageChanged"));
   renderOverview();
 }
 
-function selectFindingById(id) {
-  const normalizedId = id?.trim();
-  if (!normalizedId) {
-    addChat(msg().missingFinding);
-    return undefined;
-  }
-  const finding = state.findings.find((item) => item.id.toLowerCase() === normalizedId.toLowerCase());
-  if (!finding) {
-    addChat(msg().findingMissing);
-    return undefined;
-  }
-  state.selectedFindingId = finding.id;
-  renderFindings();
-  elements.findingDetail.scrollIntoView({ block: "center", behavior: "smooth" });
-  return finding;
+function showFolderError(message) {
+  elements.folderError.hidden = false;
+  setText(elements.folderError, message);
 }
 
-async function runCommand(rawValue) {
-  const value = rawValue.trim();
-  elements.commandInput.value = "";
-  elements.commandPalette.hidden = true;
-
-  if (!value) {
-    return;
+async function loadDirectories(path) {
+  elements.folderError.hidden = true;
+  elements.folderGo.disabled = true;
+  elements.folderPathInput.disabled = true;
+  try {
+    const query = path ? `?path=${encodeURIComponent(path)}` : "";
+    const data = await requestJson(`/api/directories${query}`);
+    state.folder = data.directory;
+    renderFolderDialog();
+  } catch (error) {
+    showFolderError(`${t("folderFailed")}: ${error.message}`);
+  } finally {
+    elements.folderGo.disabled = false;
+    elements.folderPathInput.disabled = false;
+    elements.folderPathInput.focus();
   }
-  if (!value.startsWith("/")) {
-    addChat(msg().slashOnly);
-    return;
-  }
-
-  const [commandName, ...args] = value.slice(1).split(/\s+/);
-  const command = commandName.toLowerCase();
-  if (command === "help") {
-    elements.commandInput.value = "/";
-    showPalette("/");
-    return;
-  }
-  if (command === "scan") {
-    await runScan(args.join(" ").trim() || ".");
-    return;
-  }
-  if (command === "status") {
-    await loadOverview();
-    addChat(msg().statusRefreshed);
-    return;
-  }
-  if (command === "findings") {
-    document.querySelector(".findings-list-panel").scrollIntoView({ block: "start", behavior: "smooth" });
-    addChat(msg().focusFindings);
-    return;
-  }
-  if (command === "explain") {
-    const finding = selectFindingById(args[0]);
-    if (finding) {
-      addChat(`${msg().explaining}: ${finding.id}`);
-    }
-    return;
-  }
-  if (command === "fix") {
-    const finding = selectFindingById(args[0]);
-    if (finding) {
-      addChat(`${msg().fixPlan}: ward fix ${finding.id}`);
-    }
-    return;
-  }
-  if (command === "settings") {
-    elements.languageSelect.focus();
-    elements.languageSelect.scrollIntoView({ block: "center", behavior: "smooth" });
-    addChat(msg().focusSettings);
-    return;
-  }
-  if (command === "lang") {
-    await changeLanguage(args[0]);
-    return;
-  }
-  if (command === "home") {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    addChat(msg().home);
-    return;
-  }
-  if (command === "panel") {
-    document.querySelector(".dashboard-grid").scrollIntoView({ block: "start", behavior: "smooth" });
-    addChat(msg().panel);
-    return;
-  }
-  if (command === "clear") {
-    state.chat = [];
-    renderChat();
-    addActivity(msg().cleared);
-    return;
-  }
-  if (command === "quit") {
-    addChat(msg().closeHint);
-    return;
-  }
-
-  addChat(msg().noCommand);
 }
 
-elements.commandInput.addEventListener("input", () => {
-  state.activeCommandIndex = 0;
-  showPalette(elements.commandInput.value);
-});
+function renderFolderDialog() {
+  const folder = state.folder;
+  if (!folder) return;
+  setText(elements.folderCurrent, folder.current);
+  elements.folderPathInput.value = folder.current;
+  elements.folderUp.disabled = !folder.parent;
+  elements.folderDrives.innerHTML = folder.drives
+    .map((drive) => `<button type="button" class="secondary" data-drive="${escapeHtml(drive)}">${escapeHtml(drive)}</button>`)
+    .join("");
+  elements.folderList.innerHTML = folder.entries.length
+    ? folder.entries
+        .map(
+          (entry) => `
+            <div class="folder-row">
+              <strong>${escapeHtml(entry.name)}</strong>
+              <button type="button" data-folder="${escapeHtml(entry.path)}">${escapeHtml(t("folderOpen"))}</button>
+            </div>
+          `,
+        )
+        .join("")
+    : `<div class="panel-empty">${escapeHtml(t("folderEmpty"))}</div>`;
+  elements.folderDrives.querySelectorAll("[data-drive]").forEach((button) => {
+    button.addEventListener("click", () => void loadDirectories(button.getAttribute("data-drive")));
+  });
+  elements.folderList.querySelectorAll("[data-folder]").forEach((button) => {
+    button.addEventListener("click", () => void loadDirectories(button.getAttribute("data-folder")));
+  });
+}
 
-elements.commandInput.addEventListener("keydown", (event) => {
-  const matches = filterCommands(elements.commandInput.value);
-  if (!elements.commandPalette.hidden && event.key === "ArrowDown") {
-    event.preventDefault();
-    state.activeCommandIndex = matches.length ? (state.activeCommandIndex + 1) % matches.length : 0;
-    showPalette(elements.commandInput.value);
-    return;
+async function openFolderDialog() {
+  elements.folderModal.hidden = false;
+  await loadDirectories(projectRoot());
+}
+
+async function selectFolder() {
+  if (!state.folder?.current) return;
+  try {
+    const data = await requestJson("/api/root", { method: "POST", body: JSON.stringify({ path: state.folder.current }) });
+    state.overview = data.overview;
+    state.findings = Array.isArray(state.overview.scan?.findings) ? state.overview.scan.findings : [];
+    state.selectedIds.clear();
+    state.selectedFindingKey = undefined;
+    loadIgnoredState();
+    elements.folderModal.hidden = true;
+    addActivity(t("folderChanged"));
+    toast(t("folderChanged"));
+    renderOverview();
+  } catch (error) {
+    showFolderError(`${t("folderFailed")}: ${error.message}`);
   }
-  if (!elements.commandPalette.hidden && event.key === "ArrowUp") {
-    event.preventDefault();
-    state.activeCommandIndex = matches.length ? (state.activeCommandIndex + matches.length - 1) % matches.length : 0;
-    showPalette(elements.commandInput.value);
-    return;
-  }
-  if (event.key === "Tab" && elements.commandInput.value.startsWith("/")) {
-    event.preventDefault();
-    completeCommand(matches[state.activeCommandIndex]);
-    return;
-  }
-  if (event.key === "Enter") {
-    event.preventDefault();
-    void runCommand(elements.commandInput.value);
-  }
-});
+}
 
-elements.sendCommand.addEventListener("click", () => {
-  void runCommand(elements.commandInput.value);
-});
+function bindEvents() {
+  elements.navTabs.forEach((tab) => tab.addEventListener("click", () => setActiveTab(tab.dataset.tab)));
+  $$("[data-tab-target]").forEach((button) => button.addEventListener("click", () => setActiveTab(button.dataset.tabTarget)));
+  $$("[data-action='copy-all']").forEach((button) => button.addEventListener("click", () => void copySelectedFindings(true)));
+  $$("[data-action='select-all']").forEach((button) => button.addEventListener("click", selectAllVisible));
+  elements.scanButton.addEventListener("click", () => void runScan());
+  elements.copySelectedButton.addEventListener("click", () => void copySelectedFindings());
+  elements.settingsButton.addEventListener("click", () => setActiveTab("settings"));
+  elements.selectVisibleButton.addEventListener("click", selectAllVisible);
+  elements.clearSelectionButton.addEventListener("click", clearSelection);
+  elements.ignoreSelectedButton.addEventListener("click", ignoreSelected);
+  elements.restoreSelectedButton.addEventListener("click", () => restoreSelected(false));
+  elements.restoreAllButton.addEventListener("click", () => restoreSelected(true));
+  elements.copyFindingButton.addEventListener("click", () => void copyCurrentFinding());
+  elements.copyCodeButton.addEventListener("click", () => void copyCurrentCode());
+  elements.ignoreCurrentButton.addEventListener("click", () => {
+    if (state.ignoredKeys.has(state.selectedFindingKey)) restoreSelected(false);
+    else ignoreSelected();
+  });
+  elements.folderButton.addEventListener("click", () => void openFolderDialog());
+  elements.settingsFolderButton.addEventListener("click", () => void openFolderDialog());
+  elements.folderClose.addEventListener("click", () => {
+    elements.folderModal.hidden = true;
+  });
+  elements.folderGo.addEventListener("click", () => void loadDirectories(elements.folderPathInput.value));
+  elements.folderPathInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") void loadDirectories(elements.folderPathInput.value);
+  });
+  elements.folderUp.addEventListener("click", () => void loadDirectories(state.folder?.parent));
+  elements.folderSelect.addEventListener("click", () => void selectFolder());
+  elements.languageSelect.addEventListener("change", () => void changeLanguage(elements.languageSelect.value));
+  elements.settingsLanguageSelect.addEventListener("change", () => void changeLanguage(elements.settingsLanguageSelect.value));
+}
 
-elements.scanButton.addEventListener("click", () => {
-  void runScan(".");
-});
-
-elements.settingsButton.addEventListener("click", () => {
-  void runCommand("/settings");
-});
-
-elements.languageSelect.addEventListener("change", () => {
-  void changeLanguage(elements.languageSelect.value);
-});
-
-document.addEventListener("click", (event) => {
-  if (!event.target.closest(".composer-shell")) {
-    elements.commandPalette.hidden = true;
-  }
-});
-
+bindEvents();
 renderStaticCopy();
+renderTabs();
 renderActivity();
-renderChat();
 void loadOverview().catch((error) => {
   addActivity(error.message);
-  addChat(error.message);
+  toast(error.message);
 });

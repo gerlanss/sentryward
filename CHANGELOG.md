@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.6
+
+- Rebuilt `ward ui` as a click-first browser interface without a command composer.
+- Added visual tabs, folder selection, finding multi-select, copy actions, ignored findings, and restore actions.
+- Added exact source context for findings with highlighted line and copy-code support.
+
 ## 0.1.5
 
 - Added `ward ui`, a local browser interface served on `127.0.0.1`.

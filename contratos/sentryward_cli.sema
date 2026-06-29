@@ -1,6 +1,6 @@
 module sentryward.cli {
   docs {
-    resumo: "Contrato do CLI local-first SentryWard: comando ward, i18n, configuracao, watch mode, status e fluxo de fix seguro."
+    resumo: "Contrato do CLI local-first SentryWard: comando ward, painel principal, i18n, configuracao, watch mode, status e fluxo de fix seguro."
   }
 
   enum Idioma {
@@ -150,13 +150,17 @@ module sentryward.cli {
       criticidade_operacional: media
     }
     guarantees {
-      status em [watching, console_interativo_slash]
+      status em [watching, panel, console_interativo_slash]
       findingsPersistidos existe
     }
     tests {
       caso "watch alerta somente alto critico" {
         given { projeto: "examples/vulnerable-app" threshold: "high" }
         expect { sucesso: verdadeiro status: "watching" }
+      }
+      caso "home sem marcadores abre painel" {
+        given { projeto: "home_sem_projeto" threshold: "high" }
+        expect { sucesso: verdadeiro status: "panel" }
       }
     }
   }

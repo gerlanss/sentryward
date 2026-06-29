@@ -4,7 +4,8 @@ import { resolve } from "node:path";
 import { createInterface } from "node:readline/promises";
 import pc from "picocolors";
 import type { Language, Translator } from "../types/index.js";
-import { printScanDashboard, printWatchConsoleHelp } from "../core/logger.js";
+import { printScanDashboard, printWatchConsoleHelp, printWatchIntro } from "../core/logger.js";
+import { detectProject } from "../core/projectDetector.js";
 import { scanProject } from "../core/scanner.js";
 import { startWatcher, type WatchSession } from "../core/watcher.js";
 import { runExplainCommand } from "./explain.js";
@@ -30,7 +31,22 @@ function printMissingFindingId(t: Translator): void {
   console.log(pc.yellow(t("console.missingFindingId")));
 }
 
-async function runSlashCommand(raw: string, root: string, options: WatchCommandOptions): Promise<boolean> {
+async function renderPanel(root: string, options: WatchCommandOptions, watcher: WatchSession): Promise<void> {
+  const project = await detectProject(root);
+  printWatchIntro(options.t, project, {
+    sema: options.sema,
+    governed: options.governed,
+    watchEnabled: watcher.watchEnabled,
+    root,
+  });
+}
+
+async function runSlashCommand(
+  raw: string,
+  root: string,
+  options: WatchCommandOptions,
+  watcher: WatchSession,
+): Promise<boolean> {
   const value = raw.trim();
   if (!value) {
     return true;
@@ -46,6 +62,10 @@ async function runSlashCommand(raw: string, root: string, options: WatchCommandO
     case "help":
     case "?":
       printWatchConsoleHelp(options.t);
+      return true;
+    case "panel":
+    case "dashboard":
+      await renderPanel(root, options, watcher);
       return true;
     case "scan": {
       const target = resolve(root, args[0] ?? ".");
@@ -92,7 +112,7 @@ async function runSlashCommand(raw: string, root: string, options: WatchCommandO
       return true;
     case "clear":
       console.clear();
-      printWatchConsoleHelp(options.t);
+      await renderPanel(root, options, watcher);
       return true;
     case "quit":
     case "exit":
@@ -113,7 +133,7 @@ async function openConsole(root: string, options: WatchCommandOptions, watcher: 
   rl.prompt();
   for await (const line of rl) {
     try {
-      const keepOpen = await runSlashCommand(line, root, options);
+      const keepOpen = await runSlashCommand(line, root, options, watcher);
       if (!keepOpen) {
         rl.close();
         break;

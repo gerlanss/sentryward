@@ -6,7 +6,7 @@ import pc from "picocolors";
 import type { Finding, FindingCategory, ProjectInfo, ScanResult, SemaGateResult, Severity, Translator } from "../types/index.js";
 import { countBySeverity, severityRank } from "./severity.js";
 
-const VERSION = "v0.1.1";
+const VERSION = "v0.1.2";
 const ANSI_PATTERN = new RegExp(String.raw`\x1B\[[0-?]*[ -/]*[@-~]`, "g");
 const SEVERITIES: Severity[] = ["critical", "high", "medium", "low", "info"];
 const CATEGORY_ORDER: FindingCategory[] = [
@@ -27,6 +27,13 @@ const CATEGORY_ORDER: FindingCategory[] = [
   "firebase",
   "sema",
 ];
+
+interface WatchIntroOptions {
+  sema?: boolean;
+  governed?: boolean;
+  watchEnabled?: boolean;
+  root?: string;
+}
 
 function visibleLength(value: string): number {
   return value.replace(ANSI_PATTERN, "").length;
@@ -285,10 +292,72 @@ export function printScanDashboard(t: Translator, result: ScanResult): void {
   console.log(main);
 }
 
-export function printWatchIntro(t: Translator, project: ProjectInfo, options: { sema?: boolean; governed?: boolean }): void {
+function watchGuardLines(t: Translator, maxLines: number): string[] {
+  const active = CATEGORY_ORDER.slice(0, maxLines);
+  const lines = active.map((category) => `${pc.green("✓")} ${t(`category.${category}`)}`);
+  if (CATEGORY_ORDER.length > maxLines) {
+    lines.push(pc.gray(t("dashboard.moreGuards", { count: CATEGORY_ORDER.length - maxLines })));
+  }
+  return lines;
+}
+
+function buildWatchSidebar(t: Translator, project: ProjectInfo, width: number, mode: string, watchEnabled: boolean): string {
+  const content = [
+    pc.magenta("       ◆"),
+    pc.magenta("    ◇ ◉ ◇"),
+    pc.magenta("       ◆"),
+    "",
+    `${pc.bold("Sentry")}${pc.magenta(pc.bold("Ward"))}`,
+    pc.magenta(t("watch.started")),
+    "",
+    pc.magenta(t("summary.project").toUpperCase()),
+    `  ${pc.gray("▣")} ${truncatePlain(project.name, width - 8)}`,
+    `  ${pc.gray("</>")} ${formatStack(project.stack, width - 8)}`,
+    "",
+    pc.magenta(t("dashboard.status").toUpperCase()),
+    `  ${watchEnabled ? pc.green("●") : pc.yellow("●")} ${watchEnabled ? pc.green(mode) : pc.yellow(mode)}`,
+    `  ${pc.gray(t("dashboard.started"))}: ${t("dashboard.justNow")}`,
+    "",
+    pc.magenta(t("summary.score").toUpperCase()),
+    `  ${pc.green(pc.bold("100"))}${pc.gray("/100")}`,
+    `  ${scoreMeter(100, Math.max(8, width - 8))}`,
+    "",
+    pc.magenta(t("dashboard.guardsActive").toUpperCase()),
+    ...watchGuardLines(t, 8).map((line) => `  ${line}`),
+  ].join("\n");
+  return boxed(content, width, "gray");
+}
+
+function buildWatchTimeline(t: Translator, width: number, watchEnabled: boolean): string {
+  const now = new Date().toLocaleTimeString();
+  const state = watchEnabled ? pc.green(t("watch.panelArmed")) : pc.yellow(t("watch.panelPaused"));
+  const content = [
+    `${pc.magenta(t("watch.panelTitle"))} ${pc.gray(now)}`,
+    `[${pc.gray(now)}] ${t("watch.panelReady")}`,
+    `[${pc.gray(now)}] ${state}`,
+  ].join("\n");
+  return boxed(content, width, "gray");
+}
+
+function buildWatchConsoleCard(t: Translator, width: number): string {
+  const content = [
+    pc.magenta(t("console.ready")),
+    t("console.readyBody"),
+    t("console.scanHint"),
+    t("console.panelHint"),
+    t("console.historyHint"),
+  ].join("\n");
+  return boxed(content, width, "magenta");
+}
+
+function buildWatchCommandBar(t: Translator, width: number): string {
+  return boxed(fitAnsi(t("console.commandBar"), width - 4), width, "gray");
+}
+
+export function printWatchIntro(t: Translator, project: ProjectInfo, options: WatchIntroOptions = {}): void {
   const width = terminalWidth();
-  const mode = options.sema || options.governed ? "watching + sema" : "watching";
-  const valueWidth = Math.max(10, width - 32);
+  const watchEnabled = options.watchEnabled ?? true;
+  const mode = options.sema || options.governed ? (watchEnabled ? "watching + sema" : "panel + sema") : watchEnabled ? "watching" : "panel";
   const result: ScanResult = {
     project,
     findings: [],
@@ -296,31 +365,40 @@ export function printWatchIntro(t: Translator, project: ProjectInfo, options: { 
     generatedAt: new Date().toISOString(),
     scannedFiles: 0,
   };
-  console.log(
-    [
-      buildHero(t, result, width, mode),
+  const leftWidth = width >= 112 ? 31 : width;
+  const rightWidth = width >= 112 ? width - leftWidth - 2 : width;
+  const valueWidth = Math.max(10, rightWidth - 32);
+  const semaEnabled = options.sema || options.governed;
+  const main = [
+    buildHero(t, result, rightWidth, mode),
       boxed(
         [
           `${pc.green("✓")} ${padAnsi(t("dashboard.projectDetected"), 18)} ${truncatePlain(project.name, valueWidth)}`,
           `${pc.green("✓")} ${padAnsi(t("dashboard.stackDetected"), 18)} ${formatStack(project.stack, valueWidth)}`,
-          `${pc.gray("◉")} ${padAnsi(t("dashboard.guardMode"), 18)} ${pc.green(mode)}`,
+          `${watchEnabled ? pc.gray("◉") : pc.yellow("◉")} ${padAnsi(t("dashboard.guardMode"), 18)} ${
+            watchEnabled ? pc.green(mode) : pc.yellow(mode)
+          }`,
           `${pc.gray("◷")} ${padAnsi(t("dashboard.started"), 18)} ${t("dashboard.justNow")}`,
+          `${pc.gray("◇")} ${padAnsi(t("sema.governance"), 18)} ${
+            semaEnabled ? pc.green(t("common.enabled")) : pc.gray(t("common.disabled"))
+          }`,
+          `${pc.gray("▣")} ${padAnsi(t("summary.project"), 18)} ${truncatePlain(options.root ?? project.root, valueWidth)}`,
         ].join("\n"),
-        width,
+        rightWidth,
         "gray",
       ),
-      boxed(
-        [
-          pc.magenta(t("console.ready")),
-          t("console.readyBody"),
-          t("console.scanHint"),
-          t("console.historyHint"),
-        ].join("\n"),
-        width,
-        "magenta",
-      ),
-    ].join("\n"),
-  );
+    buildWatchTimeline(t, rightWidth, watchEnabled),
+    buildWatchConsoleCard(t, rightWidth),
+    buildWatchCommandBar(t, rightWidth),
+  ].join("\n");
+
+  if (width >= 112) {
+    console.log(combineColumns(buildWatchSidebar(t, project, leftWidth, mode, watchEnabled), main, leftWidth));
+    return;
+  }
+
+  console.log(buildWatchSidebar(t, project, leftWidth, mode, watchEnabled));
+  console.log(main);
 }
 
 export function printWatchConsoleHelp(t: Translator): void {
@@ -332,6 +410,7 @@ export function printWatchConsoleHelp(t: Translator): void {
     t("console.helpFindings"),
     t("console.helpExplain"),
     t("console.helpFix"),
+    t("console.helpPanel"),
     t("console.helpClear"),
     t("console.helpQuit"),
   ];

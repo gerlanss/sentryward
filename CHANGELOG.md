@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2
+
+- Made `ward` open the main terminal panel by default with slash-command hints.
+- Added `/panel` to redraw the main dashboard from the interactive console.
+- Paused filesystem watch when launched from the Windows user home without project markers.
+- Converted restricted Windows watch paths into clean warnings instead of stack traces.
+
 ## 0.1.1
 
 - Added official project site: https://otimitare.online.

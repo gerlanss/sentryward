@@ -27,8 +27,8 @@ ward scan .
 ## Commands
 
 ```bash
-ward                         # interactive watch console by default
-ward watch                   # explicit interactive watch console
+ward                         # main panel with slash-command console
+ward watch                   # explicit main panel with file watch
 ward scan .                  # full local scan
 ward scan . --contract-check # security scan plus optional Sema governance gaps
 ward init                    # create .sentryward config
@@ -57,8 +57,11 @@ Inside the interactive watch console, use slash commands:
 /findings
 /explain SW-AUTH-014
 /fix SW-AUTH-014
+/panel
 /quit
 ```
+
+If `ward` is opened from the Windows user home or another folder without project markers, it starts in panel mode instead of watching protected system/user folders. Use `/scan <path>` or run `ward` inside a project folder to arm filesystem watch.
 
 ## Language
 
